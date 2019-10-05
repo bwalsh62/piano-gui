@@ -6,7 +6,7 @@ Created on Mon Apr 22 20:12:40 2019
 
 TO DO
 ----
-- Download recorded sounds for remaining flat keys
+- Add description and usage
 """
 
 #%% Import libraries

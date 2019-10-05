@@ -8,7 +8,6 @@ Music from: http://theremin.music.uiowa.edu/MISpiano.html
 
 # TO DO
 # - Try as a class
-# - Add all sharps
 
 """
 from pygame import mixer
@@ -28,9 +27,9 @@ E_path = music_fpath+"Piano.mf.E4_3s.wav"
 F_path = music_fpath+"Piano.mf.F4_2p5s.wav"
 Fsharp_path = music_fpath+"Piano.mf.Gb4_2p5s.wav"
 G_path = music_fpath+"Piano.mf.G4_2p5s.wav"
-Gsharp_path = music_fpath+"Piano.mf.Db4_2p5s.wav"
+Gsharp_path = music_fpath+"Piano.mf.Ab4_2p5s.wav"
 A_path = music_fpath+"Piano.mf.A4_3s.wav"
-Asharp_path = music_fpath+"Piano.mf.Db4_2p5s.wav"
+Asharp_path = music_fpath+"Piano.mf.Bb4_2p5s.wav"
 B_path = music_fpath+"Piano.mf.B4_2p5s.wav"
 
 # Define sounds
