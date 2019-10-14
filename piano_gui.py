@@ -24,11 +24,11 @@ window = Tk()
 window.title("Piano")
 
 # Set default size
-window.geometry('400x300')
+window.geometry('360x300')
 
 # Label
 lbl = Label(window, text="Note:", font=("Arial", 12))
-lbl.grid(columnspan=4, row=0)
+lbl.grid(columnspan=4, row=0, sticky="w")
 
 mixer.init()
 
