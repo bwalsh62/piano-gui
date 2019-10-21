@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Apr 22 20:12:40 2019
+Last updated October 20 2019
 
-@author: benja
+@author: Ben Walsh
 
 TO DO
 ----
-- Play chord 
-- Add frames to separate formatting of piano and chord sliders
 - Change/remove numeric ticks for chords
 - Add BPM entry
 - Play chords in background
+- Remove Csharp_played etc.
 """
 
 #%% Import libraries
@@ -42,42 +42,31 @@ top_frame.grid(row=0, sticky="ew")
 btm_frame.grid(row=1, sticky="ew")
 
 #%% Define functions for pressing keys
-def C_played():
-    sound_C.play()
-    
+
+sounds = [sound_C,sound_D,sound_E,sound_F,sound_G,sound_A,sound_B]
+
 def Csharp_played():
     sound_Csharp.play()
-    
-def D_played():
-    sound_D.play()
     
 def Dsharp_played():
     sound_Dsharp.play()
     
-def E_played():
-    sound_E.play()
-    
-def F_played():
-    sound_F.play() 
-    
 def Fsharp_played():
     sound_Fsharp.play()
-    
-def G_played():
-    sound_G.play() 
 
 def Gsharp_played():
     sound_Gsharp.play()
-    
-def A_played():
-    sound_A.play() 
 
 def Asharp_played():
     sound_Asharp.play()
-    
-def B_played():
-    sound_B.play() 
 
+# Play 3 note chord
+def chord_played():
+    note_num = chord1_scale.get()   
+    sounds[note_num].play()
+    sounds[(note_num+2)%7].play()
+    sounds[(note_num+4)%7].play()
+    
 #%% Define sliders for Chords
         
 chords = ['C','D','E','F','G','A','B']
@@ -86,6 +75,7 @@ chords = ['C','D','E','F','G','A','B']
 lbl = Label(top_frame, text="Chord:", font=("Arial", 12))
 lbl.grid(columnspan=4, row=0, sticky="W")
 
+# For testing, display the value of each slider
 def chord_show():
     lbl.configure(text="Chords: "+chords[chord1_scale.get()] + " " \
                                  +chords[chord2_scale.get()] + " " \
@@ -107,6 +97,10 @@ chord4_scale.grid(column=4,row=1)
 # Below should be automatic with call backs
 chord_btn = Button(top_frame, width=12, height=1, text="Update chords", command=chord_show)
 chord_btn.grid(columnspan=3,row=2)
+
+# Play chord (chord 1 for testing)
+play_chord1_btn = Button(top_frame, width=12, height=1, text="Play chord 1", command=chord_played)
+play_chord1_btn.grid(column=5,row=2)
 
 #%% Define buttons for piano keys
 bkey_row = 3
@@ -136,31 +130,31 @@ Asharp_btn = Button(btm_frame, width=key_width, height=key_height, text="A#", co
 Asharp_btn.grid(column=11, columnspan=2,row=bkey_row)
 
 # C key
-C_btn = Button(btm_frame, width=key_width, height=key_height, text="C", command=C_played, bg="white", fg="black")
+C_btn = Button(btm_frame, width=key_width, height=key_height, text="C", command=sound_C.play, bg="white", fg="black")
 C_btn.grid(column=0, columnspan=2, row=wkey_row)
 
 # D key
-D_btn = Button(btm_frame, width=key_width, height=key_height, text="D", command=D_played, bg="white", fg="black")
+D_btn = Button(btm_frame, width=key_width, height=key_height, text="D", command=sound_D.play, bg="white", fg="black")
 D_btn.grid(column=2, columnspan=2,row=wkey_row)
 
 # E key
-E_btn = Button(btm_frame, width=key_width, height=key_height, text="E", command=E_played, bg="white", fg="black")
+E_btn = Button(btm_frame, width=key_width, height=key_height, text="E", command=sound_E.play, bg="white", fg="black")
 E_btn.grid(column=4, columnspan=2,row=wkey_row)
 
 # F key
-F_btn = Button(btm_frame, width=key_width, height=key_height, text="F", command=F_played, bg="white", fg="black")
+F_btn = Button(btm_frame, width=key_width, height=key_height, text="F", command=sound_F.play, bg="white", fg="black")
 F_btn.grid(column=6, columnspan=2,row=wkey_row)
 
 # G key
-G_btn = Button(btm_frame, width=key_width, height=key_height, text="G", command=G_played, bg="white", fg="black")
+G_btn = Button(btm_frame, width=key_width, height=key_height, text="G", command=sound_G.play, bg="white", fg="black")
 G_btn.grid(column=8, columnspan=2,row=wkey_row)
 
 # A key
-A_btn = Button(btm_frame, width=key_width, height=key_height, text="A", command=A_played, bg="white", fg="black")
+A_btn = Button(btm_frame, width=key_width, height=key_height, text="A", command=sound_A.play, bg="white", fg="black")
 A_btn.grid(column=10, columnspan=2,row=wkey_row)
 
 # B key
-B_btn = Button(btm_frame, width=key_width, height=key_height, text="B", command=B_played, bg="white", fg="black")
+B_btn = Button(btm_frame, width=key_width, height=key_height, text="B", command=sound_B.play, bg="white", fg="black")
 B_btn.grid(column=12, columnspan=2,row=wkey_row)
  
-window.mainloop()
+root.mainloop()
