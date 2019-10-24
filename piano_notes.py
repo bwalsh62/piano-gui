@@ -17,20 +17,20 @@ mixer.init()
 
 # Paths to piano wav files
 music_fpath = "./music_files/piano/"
-C_path = music_fpath+"Piano.mf.C4_3s.wav"
+C_path = music_fpath+"Piano.mf.C4_2p4s.wav"
 #print('C_path ='+C_path)
 #print('Current wd = '+getcwd())
 Csharp_path = music_fpath+"Piano.mf.Db4_2p5s.wav"
-D_path = music_fpath+"Piano.mf.D4_3s.wav"
+D_path = music_fpath+"Piano.mf.D4_2p4s.wav"
 Dsharp_path = music_fpath+"Piano.mf.Eb4_2p5s.wav"
-E_path = music_fpath+"Piano.mf.E4_3s.wav"
-F_path = music_fpath+"Piano.mf.F4_2p5s.wav"
+E_path = music_fpath+"Piano.mf.E4_2p4s.wav"
+F_path = music_fpath+"Piano.mf.F4_2p4s.wav"
 Fsharp_path = music_fpath+"Piano.mf.Gb4_2p5s.wav"
-G_path = music_fpath+"Piano.mf.G4_2p5s.wav"
+G_path = music_fpath+"Piano.mf.G4_2p4s.wav"
 Gsharp_path = music_fpath+"Piano.mf.Ab4_2p5s.wav"
-A_path = music_fpath+"Piano.mf.A4_3s.wav"
+A_path = music_fpath+"Piano.mf.A4_2p4s.wav"
 Asharp_path = music_fpath+"Piano.mf.Bb4_2p5s.wav"
-B_path = music_fpath+"Piano.mf.B4_2p5s.wav"
+B_path = music_fpath+"Piano.mf.B4_2p4s.wav"
 
 # Define sounds
 sound_C = mixer.Sound(C_path)
