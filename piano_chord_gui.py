@@ -8,10 +8,10 @@ for liloquy
 
 TO DO
 ----
+- Add string instrument for keyboard
 - Change/remove numeric ticks for chords
 - Add Key entry (D for F#, etc.)
-- Move Stop button 
--- Make a Square button
+- Play/Stop button as Triangle/Square button
 - Adjust volume so background music is softer
 -- Eventually have slider for adjustable volumes
 """
