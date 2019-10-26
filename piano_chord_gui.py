@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Apr 22 20:12:40 2019
-Last updated October 24 2019
+Last updated October 26 2019
 
 @author: Ben Walsh
 for liloquy
@@ -11,14 +11,14 @@ TO DO
 - Add string instrument for keyboard
 - Change/remove numeric ticks for chords
 - Add Key entry (D for F#, etc.)
-- Play/Stop button as Triangle/Square button
 - Adjust volume so background music is softer
 -- Eventually have slider for adjustable volumes
+- Add +/- to adjust bpm
 """
 
 #%% Import libraries
 # GUI with tkinter
-from tkinter import Tk, Label, Button, Scale, Frame, Entry
+from tkinter import Tk, Label, Button, Scale, Frame, Entry, PhotoImage
 # Numerical processing with numpy
 import numpy as np
 # Music player from pygame
@@ -133,11 +133,24 @@ show_chord_btn = Button(top_frame, width=12, height=1, text="Update chords", com
 show_chord_btn.grid(column=4,columnspan=2, row=0)
 
 # Play/Loop chords
-play_chord_btn = Button(top_frame, width=6, height=1, text="Play", command=chords_repeat)
+
+# Picture for play button
+photo = PhotoImage(file = r"C:\Users\benja\Documents\Liloquy\Marketing\PlayIconNoBorder.png") 
+# Resizing image to fit on button 
+play_img = photo.subsample(6) 
+
+play_chord_btn = Button(top_frame, width=34, text="Play", command=chords_repeat, image=play_img)
 play_chord_btn.grid(column=1,row=2)
 
 # Stop chords
-stop_btn = Button(top_frame, width=6,text="Stop",command=mixer.stop)
+
+# Picture for stop button
+photo = PhotoImage(file = r"C:\Users\benja\Documents\Liloquy\Marketing\StopIconNoBorder.png") 
+# Resizing image to fit on button 
+stop_img = photo.subsample(6) 
+
+# Button to stop
+stop_btn = Button(top_frame, width=34,text="Stop",command=mixer.stop, image=stop_img)
 stop_btn.grid(column=2,row=2)
 
 # Number of repeats
