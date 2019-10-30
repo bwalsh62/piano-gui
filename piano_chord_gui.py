@@ -14,6 +14,7 @@ TO DO
 - Adjust volume so background music is softer
 -- Eventually have slider for adjustable volumes
 - Add +/- to adjust bpm
+- make_melody takes in array, not hard-coded for 4 notes
 """
 
 #%% Import libraries
@@ -25,6 +26,7 @@ import numpy as np
 from pygame import mixer
 # Custom piano sound functions
 from piano_notes import sound_C, sound_Csharp, sound_D, sound_Dsharp, sound_E, sound_F, sound_Fsharp, sound_G, sound_Gsharp, sound_A, sound_Asharp, sound_B
+
 # Custom music function for making melody
 from melody import make_melody
 
@@ -32,11 +34,11 @@ from melody import make_melody
 
 root = Tk()
 root.title('liloquy: piano chords')
-root.geometry('{}x{}'.format(360, 440))
+root.geometry('{}x{}'.format(350, 480))
 
 # Create main frame containers
 top_frame = Frame(root, bg='blue', width=360, height=400, pady=2)
-btm_frame = Frame(root, bg='white', width=360, height=200, padx=2, pady=2)
+btm_frame = Frame(root, bg='white', width=360, height=220, padx=2, pady=2)
 
 # Initialize music mixer
 mixer.init()
@@ -135,22 +137,22 @@ show_chord_btn.grid(column=4,columnspan=2, row=0)
 # Play/Loop chords
 
 # Picture for play button
-photo = PhotoImage(file = r"C:\Users\benja\Documents\Liloquy\Marketing\PlayIconNoBorder.png") 
+photo = PhotoImage(file = "./icons/PlayIcon.png") 
 # Resizing image to fit on button 
 play_img = photo.subsample(6) 
 
-play_chord_btn = Button(top_frame, width=34, text="Play", command=chords_repeat, image=play_img)
+play_chord_btn = Button(top_frame, width=36, text="Play", command=chords_repeat, image=play_img)
 play_chord_btn.grid(column=1,row=2)
 
 # Stop chords
 
 # Picture for stop button
-photo = PhotoImage(file = r"C:\Users\benja\Documents\Liloquy\Marketing\StopIconNoBorder.png") 
+photo = PhotoImage(file = "./icons/StopIcon.png") 
 # Resizing image to fit on button 
 stop_img = photo.subsample(6) 
 
 # Button to stop
-stop_btn = Button(top_frame, width=34,text="Stop",command=mixer.stop, image=stop_img)
+stop_btn = Button(top_frame, width=36,text="Stop",command=mixer.stop, image=stop_img)
 stop_btn.grid(column=2,row=2)
 
 # Number of repeats
