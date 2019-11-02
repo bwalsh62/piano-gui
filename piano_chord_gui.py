@@ -14,16 +14,21 @@ TO DO
 - Adjust volume so background music is softer
 -- Eventually have slider for adjustable volumes
 - Add +/- to adjust bpm
-- make_melody takes in array, not hard-coded for 4 notes
+- Script to redefine sound_C etc when instrument changes
+- Shouldn't input melody name, only rely on output
 """
 
 #%% Import libraries
 # GUI with tkinter
 from tkinter import Tk, Label, Button, Scale, Frame, Entry, PhotoImage
+from PIL import Image
 # Numerical processing with numpy
 import numpy as np
+import os.path
+
 # Music player from pygame
 from pygame import mixer
+
 # Custom piano sound functions
 from piano_notes import sound_C, sound_Csharp, sound_D, sound_Dsharp, sound_E, sound_F, sound_Fsharp, sound_G, sound_Gsharp, sound_A, sound_Asharp, sound_B
 
@@ -64,44 +69,48 @@ def chords_repeat():
         print('Invalid entry: '+bpm_entry.get()+', using '+str(bpm)+' for bpm')  
     
     # Top-line melody
+    #
+    # Shouldn't input melody name, only rely on output
     mel1_wav_name = './mel1.wav'
     note_num1 = chord1_scale.get()   
     note_num2 = chord2_scale.get()   
     note_num3 = chord3_scale.get()   
     note_num4 = chord4_scale.get()
     mel_array=np.array([note_num1,note_num2,note_num3,note_num4])
-    mel1_wav_name = make_melody(mel1_wav_name,note_num1,note_num2,note_num3,note_num4,bpm)
-    #mel1_wav_name = make_melody(mel1_wav_name,mel_array,bpm)
+    #mel1_wav_name = make_melody(mel1_wav_name,note_num1,note_num2,note_num3,note_num4,bpm)
+    mel1_wav_name = make_melody(mel1_wav_name,mel_array,bpm)
 
     mel2_wav_name = './mel2.wav'
     note_num1 = (note_num1+2)%7  
     note_num2 = (note_num2+2)%7  
     note_num3 = (note_num3+2)%7   
     note_num4 = (note_num4+2)%7
-    mel2_wav_name = make_melody(mel2_wav_name,note_num1,note_num2,note_num3,note_num4,bpm)
-    #mel2_wav_name = make_melody(mel2_wav_name,(mel_array+2)%7,bpm)
+    #mel2_wav_name = make_melody(mel2_wav_name,note_num1,note_num2,note_num3,note_num4,bpm)
+    mel2_wav_name = make_melody(mel2_wav_name,(mel_array+2)%7,bpm)
 
     mel3_wav_name = './mel3.wav'
     note_num1 = (note_num1+2)%7  
     note_num2 = (note_num2+2)%7  
     note_num3 = (note_num3+2)%7   
     note_num4 = (note_num4+2)%7
-    mel3_wav_name = make_melody(mel3_wav_name,note_num1,note_num2,note_num3,note_num4,bpm)
-    #mel3_wav_name = make_melody(mel3_wav_name,(mel_array+4)%7,bpm)
+    #mel3_wav_name = make_melody(mel3_wav_name,note_num1,note_num2,note_num3,note_num4,bpm)
+    mel3_wav_name = make_melody(mel3_wav_name,(mel_array+4)%7,bpm)
 
     melody1 = mixer.Sound(mel1_wav_name)
     melody2 = mixer.Sound(mel2_wav_name)
     melody3 = mixer.Sound(mel3_wav_name)
 
     # Get input entry for # of times to repeat
+    # Note that loops sets the number of time it will repeat
+    #  E.g. to play once, loops=0, to play twice, loops=1 ,etc.
     if rpt_entry.get().isdigit():
-        n_repeats = int(rpt_entry.get())
+        n_repeats = int(rpt_entry.get())-1
     else:
-        n_repeats=1
+        n_repeats=0
         print('Invalid entry: '+rpt_entry.get()+', using '+str(n_repeats)+' for # loops')    
-    melody1.play(n_repeats)
-    melody2.play(n_repeats)
-    melody3.play(n_repeats)
+    melody1.play(loops=n_repeats)
+    melody2.play(loops=n_repeats)
+    melody3.play(loops=n_repeats)
  
 #%% Define sliders for Chords
         
@@ -137,22 +146,31 @@ show_chord_btn.grid(column=4,columnspan=2, row=0)
 # Play/Loop chords
 
 # Picture for play button
-photo = PhotoImage(file = "./icons/PlayIcon.png") 
+playFile = "./icons/PlayIcon.png"
+if not(os.path.exists(playFile)):
+    print('Cannot find: '+playFile)
+    
+#im = Image.open(playFile)    
+photo = PhotoImage(file = playFile) 
+#photo = PhotoImage(im) 
 # Resizing image to fit on button 
 play_img = photo.subsample(6) 
 
-play_chord_btn = Button(top_frame, width=36, text="Play", command=chords_repeat, image=play_img)
+play_chord_btn = Button(top_frame, width=36, height=36,text="Play", command=chords_repeat, image=play_img)
 play_chord_btn.grid(column=1,row=2)
 
 # Stop chords
 
 # Picture for stop button
-photo = PhotoImage(file = "./icons/StopIcon.png") 
+stopFile = "./icons/StopIcon.png"
+#im = Image.open(stopFile)    
+#photo = PhotoImage(im) 
+photo = PhotoImage(file = stopFile) 
 # Resizing image to fit on button 
 stop_img = photo.subsample(6) 
 
 # Button to stop
-stop_btn = Button(top_frame, width=36,text="Stop",command=mixer.stop, image=stop_img)
+stop_btn = Button(top_frame, width=36,height=36, text="Stop",command=mixer.stop, image=stop_img)
 stop_btn.grid(column=2,row=2)
 
 # Number of repeats
