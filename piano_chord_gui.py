@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Apr 22 20:12:40 2019
-Last updated October 26 2019
+Last updated November 4 2019
 
 @author: Ben Walsh
 for liloquy
@@ -9,7 +9,6 @@ for liloquy
 TO DO
 ----
 - Add string instrument for keyboard
-- Change/remove numeric ticks for chords
 - Add Key entry (D for F#, etc.)
 - Adjust volume so background music is softer
 -- Eventually have slider for adjustable volumes
@@ -65,9 +64,10 @@ def chords_repeat():
     if bpm_entry.get().isdigit():
         bpm = int(bpm_entry.get())
     else:
-        bpm = 60
+        bpm = 75
         print('Invalid entry: '+bpm_entry.get()+', using '+str(bpm)+' for bpm')  
-    
+        bpm_entry.delete(0, 'end') # this will delete everything inside the entry
+        bpm_entry.insert(0, bpm)
     # Top-line melody
     #
     # Shouldn't input melody name, only rely on output
@@ -108,6 +108,8 @@ def chords_repeat():
     else:
         n_repeats=0
         print('Invalid entry: '+rpt_entry.get()+', using '+str(n_repeats)+' for # loops')    
+        rpt_entry.delete(0, 'end') # this will delete everything inside the entry
+        rpt_entry.insert(0, n_repeats)
     melody1.play(loops=n_repeats)
     melody2.play(loops=n_repeats)
     melody3.play(loops=n_repeats)
@@ -116,32 +118,40 @@ def chords_repeat():
         
 chords = ['C','D','E','F','G','A','B']
 
-# Label
-lbl = Label(top_frame, text="Chords:", font=("Arial", 12),bg='Blue')
-lbl.grid(columnspan=4, row=0, sticky="W")
+# Label for chord/slider 1
+lbl1 = Label(top_frame, text="C", font=("Arial", 12),bg='Blue')
+lbl1.grid(column=1, row=0, sticky="W")
 
-# For testing, display the value of each slider
-def chord_show():
-    lbl.configure(text="Chords: "+chords[chord1_scale.get()] + " " \
-                                 +chords[chord2_scale.get()] + " " \
-                                 +chords[chord3_scale.get()] + " " \
-                                 +chords[chord4_scale.get()])
+# Label for chord/slider 2
+lbl2 = Label(top_frame, text="C", font=("Arial", 12),bg='Blue')
+lbl2.grid(column=2, row=0, sticky="W")
 
-chord1_scale = Scale(top_frame,from_=0,to=6,bg='Purple')#, command=chord_show)
+# Label for chord/slider 3
+lbl3 = Label(top_frame, text="C", font=("Arial", 12),bg='Blue')
+lbl3.grid(column=3, row=0, sticky="W")
+
+# Label for chord/slider 4
+lbl4 = Label(top_frame, text="C", font=("Arial", 12),bg='Blue')
+lbl4.grid(column=4, row=0, sticky="W")
+
+# Update the value of each slider
+def update_labels(self):
+    lbl1.configure(text=chords[chord1_scale.get()])
+    lbl2.configure(text=chords[chord2_scale.get()])
+    lbl3.configure(text=chords[chord3_scale.get()])
+    lbl4.configure(text=chords[chord4_scale.get()])
+
+chord1_scale = Scale(top_frame,from_=0,to=6,bg='Purple',command=update_labels,showvalue=0)
 chord1_scale.grid(column=1,row=1)
 
-chord2_scale = Scale(top_frame,from_=0,to=6,bg='Purple')#, command=chord_show)
+chord2_scale = Scale(top_frame,from_=0,to=6,bg='Purple',command=update_labels,showvalue=0)
 chord2_scale.grid(column=2,row=1)
 
-chord3_scale = Scale(top_frame,from_=0,to=6,bg='Purple')#, command=chord_show)
+chord3_scale = Scale(top_frame,from_=0,to=6,bg='Purple',command=update_labels,showvalue=0)
 chord3_scale.grid(column=3,row=1)
 
-chord4_scale = Scale(top_frame,from_=0,to=6,bg='Purple')#, command=chord_show)
+chord4_scale = Scale(top_frame,from_=0,to=6,bg='Purple',command=update_labels,showvalue=0)
 chord4_scale.grid(column=4,row=1)
-
-# Display chords for testing
-show_chord_btn = Button(top_frame, width=12, height=1, text="Update chords", command=chord_show)
-show_chord_btn.grid(column=4,columnspan=2, row=0)
 
 # Play/Loop chords
 
@@ -196,8 +206,8 @@ bpm_lbl.grid(column=6, row=2, sticky="W")
 bpm_entry = Entry(top_frame, width=5)
 bpm_entry.grid(column=7,row=2)
 
-# Initialize Entry with default bpm = 60 
-bpm_entry.insert(0,'60')
+# Initialize Entry with default bpm = 75
+bpm_entry.insert(0,'75')
 
 #%% Define buttons for piano keys
 bkey_row = 3
