@@ -34,10 +34,7 @@ from pygame import mixer
 from piano_notes import sound_C, sound_Csharp, sound_D, sound_Dsharp, sound_E, sound_F, sound_Fsharp, sound_G, sound_Gsharp, sound_A, sound_Asharp, sound_B
 
 # Custom music function for making melody
-from melody import make_melody
-
-## Custom music function for making melody
-#from gui_functions import chords_repeat
+from gui_functions import chords_repeat_func
 
 #%% Initialize GUI
 
@@ -75,7 +72,7 @@ def chords_repeat():
         bpm_entry_input = bpm_entry
     if tab_name =='Advanced':
         bpm_entry_input = bpm_entry2
-    
+        
     # Get input entry for bpm
     if bpm_entry_input.get().isdigit():
         # Setting minimum bpm
@@ -94,37 +91,14 @@ def chords_repeat():
         print('Invalid entry: '+bpm_entry_input.get()+', using '+str(bpm)+' for bpm')  
         bpm_entry_input.delete(0, 'end') # this will delete everything inside the entry
         bpm_entry_input.insert(0, bpm)
+        
     # Top-line melody
-    #
-    # Shouldn't input melody name, only rely on output
-    mel1_wav_name = './mel1.wav'
     note_num1 = chord1_scale.get()   
     note_num2 = chord2_scale.get()   
     note_num3 = chord3_scale.get()   
     note_num4 = chord4_scale.get()
+    
     mel_array=np.array([note_num1,note_num2,note_num3,note_num4])
-    #mel1_wav_name = make_melody(mel1_wav_name,note_num1,note_num2,note_num3,note_num4,bpm)
-    mel1_wav_name = make_melody(mel1_wav_name,mel_array,bpm)
-
-    mel2_wav_name = './mel2.wav'
-    note_num1 = (note_num1+2)%7  
-    note_num2 = (note_num2+2)%7  
-    note_num3 = (note_num3+2)%7   
-    note_num4 = (note_num4+2)%7
-    #mel2_wav_name = make_melody(mel2_wav_name,note_num1,note_num2,note_num3,note_num4,bpm)
-    mel2_wav_name = make_melody(mel2_wav_name,(mel_array+2)%7,bpm)
-
-    mel3_wav_name = './mel3.wav'
-    note_num1 = (note_num1+2)%7  
-    note_num2 = (note_num2+2)%7  
-    note_num3 = (note_num3+2)%7   
-    note_num4 = (note_num4+2)%7
-    #mel3_wav_name = make_melody(mel3_wav_name,note_num1,note_num2,note_num3,note_num4,bpm)
-    mel3_wav_name = make_melody(mel3_wav_name,(mel_array+4)%7,bpm)
-
-    melody1 = mixer.Sound(mel1_wav_name)
-    melody2 = mixer.Sound(mel2_wav_name)
-    melody3 = mixer.Sound(mel3_wav_name)
 
     # Get input entry for # of times to repeat
     # Note that loops sets the number of time it will repeat
@@ -136,9 +110,8 @@ def chords_repeat():
         print('Invalid entry: '+rpt_entry.get()+', using '+str(n_repeats)+' for # loops')    
         rpt_entry.delete(0, 'end') # this will delete everything inside the entry
         rpt_entry.insert(0, n_repeats)
-    melody1.play(loops=n_repeats)
-    melody2.play(loops=n_repeats)
-    melody3.play(loops=n_repeats)
+    
+    chords_repeat_func(bpm, n_repeats, mel_array)
  
 #%% Define sliders for Chords
         
