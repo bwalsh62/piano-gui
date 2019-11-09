@@ -15,11 +15,13 @@ TO DO
 - Add +/- to adjust bpm
 - Script to redefine sound_C etc when instrument changes
 - Shouldn't input melody name, only rely on output
+- Preset happy/sad (major/minor) progression
+- PyInstaller for application
 """
 
 #%% Import libraries
 # GUI with tkinter
-from tkinter import Tk, Label, Button, Scale, Frame, Entry, PhotoImage
+from tkinter import Tk, Label, Button, Scale, Frame, Entry, PhotoImage, ttk
 from PIL import Image
 # Numerical processing with numpy
 import numpy as np
@@ -60,8 +62,21 @@ sounds = [sound_C,sound_D,sound_E,sound_F,sound_G,sound_A,sound_B]
 
 def chords_repeat():
     
+    min_bpm = 30
+    max_bpm = 120
+    
     # Get input entry for bpm
     if bpm_entry.get().isdigit():
+        # Setting minimum bpm
+        if int(bpm_entry.get())<min_bpm:
+            print('BPM too low. Using '+str(min_bpm)+' for bpm')  
+            bpm_entry.delete(0, 'end') 
+            bpm_entry.insert(0, min_bpm)
+        # Setting maximum bpm
+        if int(bpm_entry.get())>max_bpm:
+            print('BPM too high. Using '+str(max_bpm)+' for bpm')  
+            bpm_entry.delete(0, 'end') 
+            bpm_entry.insert(0, max_bpm)
         bpm = int(bpm_entry.get())
     else:
         bpm = 75
@@ -153,6 +168,21 @@ chord3_scale.grid(column=3,row=1)
 chord4_scale = Scale(top_frame,from_=0,to=6,bg='Purple',command=update_labels,showvalue=0)
 chord4_scale.grid(column=4,row=1)
 
+# Test for tabbed interface - eventually distinguish between
+#-------------------------------------
+# Advanced: type bpm, adjust chords manually, ...
+# Simple, +/- bpm, preset happy/sad chords, ...
+
+tab_parent = ttk.Notebook(top_frame)
+
+tab1 = ttk.Frame(tab_parent, width=30, height=40)
+tab2 = ttk.Frame(tab_parent, width=30, height=40)
+
+tab_parent.add(tab1, text="Standard")
+tab_parent.add(tab2, text="Advanced")
+
+tab_parent.grid(column=5,row=1)
+
 # Play/Loop chords
 
 # Picture for play button
@@ -199,11 +229,13 @@ rpt_entry.insert(0,'2')
 # Tempo in BPM
 #-----------------
 # BPM Label
-bpm_lbl = Label(top_frame, text="BPM:", font=("Arial", 10),bg='Blue')
+#bpm_lbl = Label(top_frame, text="BPM:", font=("Arial", 10),bg='Blue')
+bpm_lbl = Label(tab1, text="BPM:", font=("Arial", 10),bg='Blue')
 bpm_lbl.grid(column=6, row=2, sticky="W")
 
 # Repeat # Entry
-bpm_entry = Entry(top_frame, width=5)
+#bpm_entry = Entry(top_frame, width=5)
+bpm_entry = Entry(tab1, width=5)
 bpm_entry.grid(column=7,row=2)
 
 # Initialize Entry with default bpm = 75
