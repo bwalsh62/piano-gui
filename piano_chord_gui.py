@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Apr 22 20:12:40 2019
-Last updated November 4 2019
+Last updated November 9 2019
 
 @author: Ben Walsh
 for liloquy
@@ -36,6 +36,9 @@ from piano_notes import sound_C, sound_Csharp, sound_D, sound_Dsharp, sound_E, s
 # Custom music function for making melody
 from melody import make_melody
 
+## Custom music function for making melody
+#from gui_functions import chords_repeat
+
 #%% Initialize GUI
 
 root = Tk()
@@ -65,24 +68,32 @@ def chords_repeat():
     min_bpm = 30
     max_bpm = 120
     
+    # Get bpm from active tab
+    tab_name = tab_parent.tab(tab_parent.select(), "text")
+    #print('active tab = '+tab_name) # for debugging
+    if tab_name == 'Standard':
+        bpm_entry_input = bpm_entry
+    if tab_name =='Advanced':
+        bpm_entry_input = bpm_entry2
+    
     # Get input entry for bpm
-    if bpm_entry.get().isdigit():
+    if bpm_entry_input.get().isdigit():
         # Setting minimum bpm
-        if int(bpm_entry.get())<min_bpm:
+        if int(bpm_entry_input.get())<min_bpm:
             print('BPM too low. Using '+str(min_bpm)+' for bpm')  
-            bpm_entry.delete(0, 'end') 
-            bpm_entry.insert(0, min_bpm)
+            bpm_entry_input.delete(0, 'end') 
+            bpm_entry_input.insert(0, min_bpm)
         # Setting maximum bpm
-        if int(bpm_entry.get())>max_bpm:
+        if int(bpm_entry_input.get())>max_bpm:
             print('BPM too high. Using '+str(max_bpm)+' for bpm')  
-            bpm_entry.delete(0, 'end') 
-            bpm_entry.insert(0, max_bpm)
+            bpm_entry_input.delete(0, 'end') 
+            bpm_entry_input.insert(0, max_bpm)
         bpm = int(bpm_entry.get())
     else:
         bpm = 75
-        print('Invalid entry: '+bpm_entry.get()+', using '+str(bpm)+' for bpm')  
-        bpm_entry.delete(0, 'end') # this will delete everything inside the entry
-        bpm_entry.insert(0, bpm)
+        print('Invalid entry: '+bpm_entry_input.get()+', using '+str(bpm)+' for bpm')  
+        bpm_entry_input.delete(0, 'end') # this will delete everything inside the entry
+        bpm_entry_input.insert(0, bpm)
     # Top-line melody
     #
     # Shouldn't input melody name, only rely on output
@@ -168,15 +179,16 @@ chord3_scale.grid(column=3,row=1)
 chord4_scale = Scale(top_frame,from_=0,to=6,bg='Purple',command=update_labels,showvalue=0)
 chord4_scale.grid(column=4,row=1)
 
-# Test for tabbed interface - eventually distinguish between
+# Test for tabbed interface 
 #-------------------------------------
+# Eventually distinguish between...
 # Advanced: type bpm, adjust chords manually, ...
 # Simple, +/- bpm, preset happy/sad chords, ...
 
 tab_parent = ttk.Notebook(top_frame)
 
-tab1 = ttk.Frame(tab_parent, width=30, height=40)
-tab2 = ttk.Frame(tab_parent, width=30, height=40)
+tab1 = ttk.Frame(tab_parent, width=30, height=80)
+tab2 = ttk.Frame(tab_parent, width=30, height=80)
 
 tab_parent.add(tab1, text="Standard")
 tab_parent.add(tab2, text="Advanced")
@@ -230,16 +242,20 @@ rpt_entry.insert(0,'2')
 #-----------------
 # BPM Label
 #bpm_lbl = Label(top_frame, text="BPM:", font=("Arial", 10),bg='Blue')
-bpm_lbl = Label(tab1, text="BPM:", font=("Arial", 10),bg='Blue')
+bpm_lbl = Label(tab1, text="BPM:", font=("Arial", 10))#,bg='Blue')
 bpm_lbl.grid(column=6, row=2, sticky="W")
+bpm_lbl2 = Label(tab2, text="BPM:", font=("Arial", 10))#,bg='Blue')
+bpm_lbl2.grid(column=6, row=2, sticky="W")
 
 # Repeat # Entry
 #bpm_entry = Entry(top_frame, width=5)
 bpm_entry = Entry(tab1, width=5)
 bpm_entry.grid(column=7,row=2)
-
+bpm_entry2 = Entry(tab2, width=5)
+bpm_entry2.grid(column=7,row=2)
 # Initialize Entry with default bpm = 75
 bpm_entry.insert(0,'75')
+bpm_entry2.insert(0,'75')
 
 #%% Define buttons for piano keys
 bkey_row = 3
