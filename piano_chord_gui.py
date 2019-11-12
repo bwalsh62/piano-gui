@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Apr 22 20:12:40 2019
-Last updated November 9 2019
+Last updated November 11 2019
 
 @author: Ben Walsh
 for liloquy
@@ -9,19 +9,18 @@ for liloquy
 TO DO
 ----
 - Add string instrument for keyboard
-- Add Key entry (D for F#, etc.)
+- Use Key entry (D for F#, etc.)
 - Adjust volume so background music is softer
 -- Eventually have slider for adjustable volumes
 - Add +/- to adjust bpm
 - Script to redefine sound_C etc when instrument changes
-- Shouldn't input melody name, only rely on output
 - Preset happy/sad (major/minor) progression
 - PyInstaller for application
 """
 
 #%% Import libraries
 # GUI with tkinter
-from tkinter import Tk, Label, Button, Scale, Frame, Entry, PhotoImage, ttk
+from tkinter import Tk, Label, Button, Scale, Frame, Entry, PhotoImage, ttk, OptionMenu, StringVar
 from PIL import Image
 # Numerical processing with numpy
 import numpy as np
@@ -160,11 +159,11 @@ chord4_scale.grid(column=4,row=1)
 
 tab_parent = ttk.Notebook(top_frame)
 
-tab1 = ttk.Frame(tab_parent, width=30, height=80)
-tab2 = ttk.Frame(tab_parent, width=30, height=80)
+stdTab = ttk.Frame(tab_parent, width=30, height=80)
+advTab = ttk.Frame(tab_parent, width=30, height=80)
 
-tab_parent.add(tab1, text="Standard")
-tab_parent.add(tab2, text="Advanced")
+tab_parent.add(stdTab, text="Standard")
+tab_parent.add(advTab, text="Advanced")
 
 tab_parent.grid(column=5,row=1)
 
@@ -215,20 +214,32 @@ rpt_entry.insert(0,'2')
 #-----------------
 # BPM Label
 #bpm_lbl = Label(top_frame, text="BPM:", font=("Arial", 10),bg='Blue')
-bpm_lbl = Label(tab1, text="BPM:", font=("Arial", 10))#,bg='Blue')
+bpm_lbl = Label(stdTab, text="BPM:", font=("Arial", 10))#,bg='Blue')
 bpm_lbl.grid(column=6, row=2, sticky="W")
-bpm_lbl2 = Label(tab2, text="BPM:", font=("Arial", 10))#,bg='Blue')
+bpm_lbl2 = Label(advTab, text="BPM:", font=("Arial", 10))#,bg='Blue')
 bpm_lbl2.grid(column=6, row=2, sticky="W")
 
 # Repeat # Entry
-#bpm_entry = Entry(top_frame, width=5)
-bpm_entry = Entry(tab1, width=5)
+bpm_entry = Entry(stdTab, width=5)
 bpm_entry.grid(column=7,row=2)
-bpm_entry2 = Entry(tab2, width=5)
+bpm_entry2 = Entry(advTab, width=5)
 bpm_entry2.grid(column=7,row=2)
+
 # Initialize Entry with default bpm = 75
 bpm_entry.insert(0,'75')
 bpm_entry2.insert(0,'75')
+
+# Major key
+#-----------
+key_lbl = Label(advTab, text="Key:", font=("Arial",10))
+key_lbl.grid(column=6, row=3, sticky="W")
+# Define list with keys
+keyVar = StringVar(root)
+keys = [ 'C','D','E','F','G','A','B']
+keyVar.set('C') # set the default option
+
+popupMenu = OptionMenu(advTab, keyVar, *keys)
+popupMenu.grid(column=7, row=3, sticky="W")
 
 #%% Define buttons for piano keys
 bkey_row = 3
