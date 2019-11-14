@@ -46,3 +46,17 @@ sound_A = mixer.Sound(A_path)
 sound_Asharp = mixer.Sound(Asharp_path)
 sound_B = mixer.Sound(B_path)
 
+sound_dict = {
+        'C4': sound_C,
+        'C#4': sound_Csharp,
+        'D4': sound_D,
+        'D#4': sound_Dsharp,
+        'E4': sound_E,
+        'F4': sound_F,
+        'F#4': sound_Fsharp,
+        'G4': sound_G,
+        'G#4': sound_Gsharp,
+        'A4': sound_A,
+        'A#4': sound_Asharp,
+        'B4': sound_B,
+}

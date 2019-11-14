@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Apr 22 20:12:40 2019
-Last updated November 11 2019
+Last updated November 13 2019
 
 @author: Ben Walsh
 for liloquy
@@ -30,7 +30,7 @@ import os.path
 from pygame import mixer
 
 # Custom piano sound functions
-from piano_notes import sound_C, sound_Csharp, sound_D, sound_Dsharp, sound_E, sound_F, sound_Fsharp, sound_G, sound_Gsharp, sound_A, sound_Asharp, sound_B
+from piano_notes import sound_dict
 
 # Custom music function for making melody
 from gui_functions import chords_repeat_func
@@ -57,7 +57,6 @@ btm_frame.grid(row=1, sticky="ew")
 
 #%% Define functions for playing chords
 
-sounds = [sound_C,sound_D,sound_E,sound_F,sound_G,sound_A,sound_B]
 
 def chords_repeat():
     
@@ -103,7 +102,11 @@ def chords_repeat():
     # Note that loops sets the number of time it will repeat
     #  E.g. to play once, loops=0, to play twice, loops=1 ,etc.
     if rpt_entry.get().isdigit():
-        n_repeats = int(rpt_entry.get())-1
+        if int(rpt_entry.get())==0:
+            # Special case where setting to -1 repeats infinitely
+            n_repeats = 0
+        else:
+            n_repeats = int(rpt_entry.get())-1
     else:
         n_repeats=0
         print('Invalid entry: '+rpt_entry.get()+', using '+str(n_repeats)+' for # loops')    
@@ -249,51 +252,51 @@ key_width = 5
 key_height = 8
 
 # C# key
-Csharp_btn = Button(btm_frame, width=key_width, height=key_height, text="C#", command=sound_Csharp.play, bg="black", fg="white")
+Csharp_btn = Button(btm_frame, width=key_width, height=key_height, text="C#", command=sound_dict['C#4'].play, bg="black", fg="white")
 Csharp_btn.grid(column=1, columnspan=2,row=bkey_row)
 
 # Dsharp key
-Dsharp_btn = Button(btm_frame, width=key_width, height=key_height, text="D#", command=sound_Dsharp.play, bg="black", fg="white")
+Dsharp_btn = Button(btm_frame, width=key_width, height=key_height, text="D#", command=sound_dict['D#4'].play, bg="black", fg="white")
 Dsharp_btn.grid(column=3, columnspan=2,row=bkey_row)
 
 # Fsharp key
-Fsharp_btn = Button(btm_frame, width=key_width, height=key_height, text="F#", command=sound_Fsharp.play, bg="black", fg="white")
+Fsharp_btn = Button(btm_frame, width=key_width, height=key_height, text="F#", command=sound_dict['F#4'].play, bg="black", fg="white")
 Fsharp_btn.grid(column=7, columnspan=2,row=bkey_row)
 
 # Gsharp key
-Gsharp_btn = Button(btm_frame, width=key_width, height=key_height, text="G#", command=sound_Gsharp.play, bg="black", fg="white")
+Gsharp_btn = Button(btm_frame, width=key_width, height=key_height, text="G#", command=sound_dict['G#4'].play, bg="black", fg="white")
 Gsharp_btn.grid(column=9, columnspan=2,row=bkey_row)
 
 # Asharp key
-Asharp_btn = Button(btm_frame, width=key_width, height=key_height, text="A#", command=sound_Asharp.play, bg="black", fg="white")
+Asharp_btn = Button(btm_frame, width=key_width, height=key_height, text="A#", command=sound_dict['A#4'].play, bg="black", fg="white")
 Asharp_btn.grid(column=11, columnspan=2,row=bkey_row)
 
 # C key
-C_btn = Button(btm_frame, width=key_width, height=key_height, text="C", command=sound_C.play, bg="white", fg="black")
+C_btn = Button(btm_frame, width=key_width, height=key_height, text="C", command=sound_dict['C4'].play, bg="white", fg="black")
 C_btn.grid(column=0, columnspan=2, row=wkey_row)
 
 # D key
-D_btn = Button(btm_frame, width=key_width, height=key_height, text="D", command=sound_D.play, bg="white", fg="black")
+D_btn = Button(btm_frame, width=key_width, height=key_height, text="D", command=sound_dict['D4'].play, bg="white", fg="black")
 D_btn.grid(column=2, columnspan=2,row=wkey_row)
 
 # E key
-E_btn = Button(btm_frame, width=key_width, height=key_height, text="E", command=sound_E.play, bg="white", fg="black")
+E_btn = Button(btm_frame, width=key_width, height=key_height, text="E", command=sound_dict['E4'].play, bg="white", fg="black")
 E_btn.grid(column=4, columnspan=2,row=wkey_row)
 
 # F key
-F_btn = Button(btm_frame, width=key_width, height=key_height, text="F", command=sound_F.play, bg="white", fg="black")
+F_btn = Button(btm_frame, width=key_width, height=key_height, text="F", command=sound_dict['F4'].play, bg="white", fg="black")
 F_btn.grid(column=6, columnspan=2,row=wkey_row)
 
 # G key
-G_btn = Button(btm_frame, width=key_width, height=key_height, text="G", command=sound_G.play, bg="white", fg="black")
+G_btn = Button(btm_frame, width=key_width, height=key_height, text="G", command=sound_dict['G4'].play, bg="white", fg="black")
 G_btn.grid(column=8, columnspan=2,row=wkey_row)
 
 # A key
-A_btn = Button(btm_frame, width=key_width, height=key_height, text="A", command=sound_A.play, bg="white", fg="black")
+A_btn = Button(btm_frame, width=key_width, height=key_height, text="A", command=sound_dict['A4'].play, bg="white", fg="black")
 A_btn.grid(column=10, columnspan=2,row=wkey_row)
 
 # B key
-B_btn = Button(btm_frame, width=key_width, height=key_height, text="B", command=sound_B.play, bg="white", fg="black")
+B_btn = Button(btm_frame, width=key_width, height=key_height, text="B", command=sound_dict['B4'].play, bg="white", fg="black")
 B_btn.grid(column=12, columnspan=2,row=wkey_row)
  
 root.mainloop()
