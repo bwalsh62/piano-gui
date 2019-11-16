@@ -18,8 +18,6 @@ from pygame import mixer
 def chords_repeat_func(bpm, n_repeats, base_notes_array):
     
     # Top-line melody
-    #
-    # Shouldn't input melody name, only rely on output
     mel1_wav_name = './mel1.wav'
     mel1_wav_name = make_melody(mel1_wav_name,base_notes_array,bpm)
 

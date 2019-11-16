@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Apr 22 20:12:40 2019
-Last updated November 13 2019
+Last updated November 15 2019
 
 @author: Ben Walsh
 for liloquy
@@ -10,11 +10,14 @@ TO DO
 ----
 - Add string instrument for keyboard
 - Use Key entry (D for F#, etc.)
+-- To update chords that play
+-- Update m/dim label to chord displays
 - Adjust volume so background music is softer
 -- Eventually have slider for adjustable volumes
 - Add +/- to adjust bpm
 - Script to redefine sound_C etc when instrument changes
 - Preset happy/sad (major/minor) progression
+-- Happy for 1-4-5-1 bpm=80, Sad for 6-2-3-6, bpm=55 
 - PyInstaller for application
 """
 
@@ -39,11 +42,11 @@ from gui_functions import chords_repeat_func
 
 root = Tk()
 root.title('liloquy: piano chords')
-root.geometry('{}x{}'.format(350, 480))
+root.geometry('{}x{}'.format(340, 450))
 
 # Create main frame containers
-top_frame = Frame(root, bg='blue', width=360, height=400, pady=2)
-btm_frame = Frame(root, bg='white', width=360, height=220, padx=2, pady=2)
+top_frame = Frame(root, bg='blue', width=340, height=400, pady=2)
+btm_frame = Frame(root, bg='white', width=340, height=350, padx=2, pady=2)
 
 # Initialize music mixer
 mixer.init()
@@ -118,6 +121,8 @@ def chords_repeat():
 #%% Define sliders for Chords
         
 chords = ['C','D','E','F','G','A','B']
+chords_full = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B']
+note_chord_map = [0,2,4,5,7,9,11]
 
 # Label for chord/slider 1
 lbl1 = Label(top_frame, text="C", font=("Arial", 12),bg='Blue')
@@ -137,10 +142,11 @@ lbl4.grid(column=4, row=0, sticky="W")
 
 # Update the value of each slider
 def update_labels(self):
-    lbl1.configure(text=chords[chord1_scale.get()])
-    lbl2.configure(text=chords[chord2_scale.get()])
-    lbl3.configure(text=chords[chord3_scale.get()])
-    lbl4.configure(text=chords[chord4_scale.get()])
+    keyConst = chords_full.index(keyVar.get()) # keyVar.get() = 'D' -> keyConst = 2
+    lbl1.configure(text=chords_full[(keyConst+note_chord_map[chord1_scale.get()])%12]) # keyVar.get()
+    lbl2.configure(text=chords_full[(keyConst+note_chord_map[chord2_scale.get()])%12])
+    lbl3.configure(text=chords_full[(keyConst+note_chord_map[chord3_scale.get()])%12])
+    lbl4.configure(text=chords_full[(keyConst+note_chord_map[chord4_scale.get()])%12])
 
 chord1_scale = Scale(top_frame,from_=0,to=6,bg='Purple',command=update_labels,showvalue=0)
 chord1_scale.grid(column=1,row=1)
@@ -154,9 +160,8 @@ chord3_scale.grid(column=3,row=1)
 chord4_scale = Scale(top_frame,from_=0,to=6,bg='Purple',command=update_labels,showvalue=0)
 chord4_scale.grid(column=4,row=1)
 
-# Test for tabbed interface 
+# Tabbed interface 
 #-------------------------------------
-# Eventually distinguish between...
 # Advanced: type bpm, adjust chords manually, ...
 # Simple, +/- bpm, preset happy/sad chords, ...
 
@@ -171,6 +176,7 @@ tab_parent.add(advTab, text="Advanced")
 tab_parent.grid(column=5,row=1)
 
 # Play/Loop chords
+#------------------
 
 # Picture for play button
 playFile = "./icons/PlayIcon.png"
@@ -187,6 +193,7 @@ play_chord_btn = Button(top_frame, width=36, height=36,text="Play", command=chor
 play_chord_btn.grid(column=1,row=2)
 
 # Stop chords
+#------------------
 
 # Picture for stop button
 stopFile = "./icons/StopIcon.png"
@@ -232,6 +239,20 @@ bpm_entry2.grid(column=7,row=2)
 bpm_entry.insert(0,'75')
 bpm_entry2.insert(0,'75')
 
+
+# Preset themes/chords for Basic/standard
+#-----------
+theme_lbl = Label(stdTab, text="Theme:", font=("Arial",10))
+theme_lbl.grid(column=6, row=3, sticky="W")
+# Define list with keys
+themeVar = StringVar(root)
+themes = [ 'Happy','Sad']
+themeVar.set(themes[0]) # set the default option
+
+chooseThemeMenu = OptionMenu(stdTab, themeVar, *themes)
+chooseThemeMenu.grid(column=7, row=3, sticky="W")
+
+
 # Major key
 #-----------
 key_lbl = Label(advTab, text="Key:", font=("Arial",10))
@@ -239,10 +260,10 @@ key_lbl.grid(column=6, row=3, sticky="W")
 # Define list with keys
 keyVar = StringVar(root)
 keys = [ 'C','D','E','F','G','A','B']
-keyVar.set('C') # set the default option
+keyVar.set(keys[0]) # set the default option
 
-popupMenu = OptionMenu(advTab, keyVar, *keys)
-popupMenu.grid(column=7, row=3, sticky="W")
+choosekeyMenu = OptionMenu(advTab, keyVar, *keys,command=update_labels)
+choosekeyMenu.grid(column=7, row=3, sticky="W")
 
 #%% Define buttons for piano keys
 bkey_row = 3
