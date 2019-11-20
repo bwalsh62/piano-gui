@@ -60,3 +60,7 @@ sound_dict = {
         'A#4': sound_Asharp,
         'B4': sound_B,
 }
+
+sound_paths = [C_path, Csharp_path, D_path, Dsharp_path,\
+               E_path, F_path, Fsharp_path, G_path, Gsharp_path, \
+A_path, Asharp_path, B_path]

@@ -2,17 +2,17 @@
 """
 Created on Thu Oct 24 11:11:36 2019
 
-Last updated: November 2, 2019
+Last updated: November 19, 2019
 
 @author: Ben Walsh
 for liloquy
 
 ----------------------------------------
 
-Called by piano_chord_gui to make melody wav files from GUI slider values
+Called by gui_functions to make melody wav files from GUI slider values
 
 Example: 
-melody_wav = make_melody('./outputmelody.wav',1,4,5,1)
+melody_wav = make_melody('./outputmelody.wav',0,5,7,0)
 # Makes a melody of C-F-G-C notes
 
 ----------------------------------------
@@ -25,16 +25,15 @@ melody_wav = make_melody('./outputmelody.wav',1,4,5,1)
 """
 
 #%% Import custom libraries
-from piano_notes import C_path, D_path, E_path, F_path, G_path, A_path, B_path
+from piano_notes import sound_paths #, sound_dict
+
 # Custom wav_file helper functions
 from wav_utils import wav_file_append, wav_file_clip
-
-sound_paths = [C_path,D_path,E_path,F_path,G_path,A_path,B_path]
 
 #%% Make melody wav file from input notes
 
 def make_melody(mel_wav_name,note_array,bpm=60):
-    
+        
     t_len = 60/bpm # time in seconds
     note_repeats = 2 # assume 2 for now, can be input or based on bpm and 4/4
     

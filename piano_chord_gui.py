@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Apr 22 20:12:40 2019
-Last updated November 15 2019
+Last updated November 19 2019
 
 @author: Ben Walsh
 for liloquy
@@ -9,9 +9,6 @@ for liloquy
 TO DO
 ----
 - Add string instrument for keyboard
-- Use Key entry (D for F#, etc.)
--- To update chords that play
--- Update m/dim label to chord displays
 - Adjust volume so background music is softer
 -- Eventually have slider for adjustable volumes
 - Add +/- to adjust bpm
@@ -58,8 +55,9 @@ root.grid_columnconfigure(0, weight=1)
 top_frame.grid(row=0, sticky="ew")
 btm_frame.grid(row=1, sticky="ew")
 
-#%% Define functions for playing chords
+chords_full = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B']
 
+#%% Define functions for playing chords
 
 def chords_repeat():
     
@@ -116,13 +114,15 @@ def chords_repeat():
         rpt_entry.delete(0, 'end') # this will delete everything inside the entry
         rpt_entry.insert(0, n_repeats)
     
-    chords_repeat_func(bpm, n_repeats, mel_array)
+    key_constant = chords_full.index(keyVar.get()) # keyVar.get() = 'D' -> keyConst = 2
+    
+    chords_repeat_func(bpm, n_repeats, mel_array, key_constant)
  
 #%% Define sliders for Chords
         
 chords = ['C','D','E','F','G','A','B']
-chords_full = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B']
 note_chord_map = [0,2,4,5,7,9,11]
+minor_tag = ['','m','m','','','m','dim']
 
 # Label for chord/slider 1
 lbl1 = Label(top_frame, text="C", font=("Arial", 12),bg='Blue')
@@ -143,10 +143,10 @@ lbl4.grid(column=4, row=0, sticky="W")
 # Update the value of each slider
 def update_labels(self):
     keyConst = chords_full.index(keyVar.get()) # keyVar.get() = 'D' -> keyConst = 2
-    lbl1.configure(text=chords_full[(keyConst+note_chord_map[chord1_scale.get()])%12]) # keyVar.get()
-    lbl2.configure(text=chords_full[(keyConst+note_chord_map[chord2_scale.get()])%12])
-    lbl3.configure(text=chords_full[(keyConst+note_chord_map[chord3_scale.get()])%12])
-    lbl4.configure(text=chords_full[(keyConst+note_chord_map[chord4_scale.get()])%12])
+    lbl1.configure(text=chords_full[(keyConst+note_chord_map[chord1_scale.get()])%12]+minor_tag[chord1_scale.get()]) # keyVar.get()
+    lbl2.configure(text=chords_full[(keyConst+note_chord_map[chord2_scale.get()])%12]+minor_tag[chord2_scale.get()])
+    lbl3.configure(text=chords_full[(keyConst+note_chord_map[chord3_scale.get()])%12]+minor_tag[chord3_scale.get()])
+    lbl4.configure(text=chords_full[(keyConst+note_chord_map[chord4_scale.get()])%12]+minor_tag[chord4_scale.get()])
 
 chord1_scale = Scale(top_frame,from_=0,to=6,bg='Purple',command=update_labels,showvalue=0)
 chord1_scale.grid(column=1,row=1)
