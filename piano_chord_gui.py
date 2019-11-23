@@ -70,7 +70,7 @@ def chords_repeat():
     if tab_name == 'Standard':
         bpm_entry_input = bpm_entry
     if tab_name =='Advanced':
-        bpm_entry_input = bpm_entry2
+        bpm_entry_input = bpm_entry_adv
         
     # Get input entry for bpm
     if bpm_entry_input.get().isdigit():
@@ -102,17 +102,22 @@ def chords_repeat():
     # Get input entry for # of times to repeat
     # Note that loops sets the number of time it will repeat
     #  E.g. to play once, loops=0, to play twice, loops=1 ,etc.
-    if rpt_entry.get().isdigit():
-        if int(rpt_entry.get())==0:
-            # Special case where setting to -1 repeats infinitely
-            n_repeats = 0
-        else:
-            n_repeats = int(rpt_entry.get())-1
+    
+    if tab_name =='Standard':
+        # Hiding repeat # and just loop 'forever' in standard mode
+        n_repeats = 100
     else:
-        n_repeats=0
-        print('Invalid entry: '+rpt_entry.get()+', using '+str(n_repeats)+' for # loops')    
-        rpt_entry.delete(0, 'end') # this will delete everything inside the entry
-        rpt_entry.insert(0, n_repeats)
+        if rpt_entry.get().isdigit():
+            if int(rpt_entry.get())==0:
+                # Special case where setting to -1 repeats infinitely
+                n_repeats = 0
+            else:
+                n_repeats = int(rpt_entry.get())-1
+        else:
+            n_repeats=0
+            print('Invalid entry: '+rpt_entry.get()+', using '+str(n_repeats)+' for # loops')    
+            rpt_entry.delete(0, 'end') # this will delete everything inside the entry
+            rpt_entry.insert(0, n_repeats)
     
     key_constant = chords_full.index(keyVar.get()) # keyVar.get() = 'D' -> keyConst = 2
     
@@ -210,12 +215,12 @@ stop_btn.grid(column=2,row=2)
 # Number of repeats
 #------------------
 # Repeat # Label
-rpt_lbl = Label(top_frame, text="Repeats:", font=("Arial", 10),bg='Blue')
-rpt_lbl.grid(column=4, row=2, sticky="W")
+rpt_lbl = Label(advTab, text="Repeats:", font=("Arial", 10))#,bg='Blue')
+rpt_lbl.grid(column=6, row=4, sticky="W")
 
 # Repeat # Entry
-rpt_entry = Entry(top_frame, width=5)
-rpt_entry.grid(column=5,row=2)
+rpt_entry = Entry(advTab, width=5)
+rpt_entry.grid(column=7,row=4)
 
 # Initialize Entry with default loops = 2 
 rpt_entry.insert(0,'2')
@@ -229,16 +234,15 @@ bpm_lbl.grid(column=6, row=2, sticky="W")
 bpm_lbl2 = Label(advTab, text="BPM:", font=("Arial", 10))#,bg='Blue')
 bpm_lbl2.grid(column=6, row=2, sticky="W")
 
-# Repeat # Entry
+# BPM Entries
 bpm_entry = Entry(stdTab, width=5)
 bpm_entry.grid(column=7,row=2)
-bpm_entry2 = Entry(advTab, width=5)
-bpm_entry2.grid(column=7,row=2)
+bpm_entry_adv = Entry(advTab, width=5)
+bpm_entry_adv.grid(column=7,row=2)
 
 # Initialize Entry with default bpm = 75
 bpm_entry.insert(0,'75')
-bpm_entry2.insert(0,'75')
-
+bpm_entry_adv.insert(0,'75')
 
 # Preset themes/chords for Basic/standard
 #-----------
@@ -251,7 +255,6 @@ themeVar.set(themes[0]) # set the default option
 
 chooseThemeMenu = OptionMenu(stdTab, themeVar, *themes)
 chooseThemeMenu.grid(column=7, row=3, sticky="W")
-
 
 # Major key
 #-----------
