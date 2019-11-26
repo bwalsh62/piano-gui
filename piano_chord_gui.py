@@ -1,7 +1,13 @@
 # -*- coding: utf-8 -*-
 """
+
+Primary GUI to play piano along with a background chord progression
+Run script to open GUI
+Creates .wav files for generated chord progression
+./mel1.wav, ./mel2.wav and ./mel3.wav 
+
 Created on Mon Apr 22 20:12:40 2019
-Last updated November 19 2019
+Last updated November 26 2019
 
 @author: Ben Walsh
 for liloquy
@@ -12,18 +18,21 @@ TO DO
 - Adjust volume so background music is softer
 -- Eventually have slider for adjustable volumes
 - Add +/- to adjust bpm
-- Script to redefine sound_C etc when instrument changes
-- Preset happy/sad (major/minor) progression
--- Happy for 1-4-5-1 bpm=80, Sad for 6-2-3-6, bpm=55 
+- Script to redefine sound_C etc when instrument changes 
 - PyInstaller for application
+- Bottom menu for settings, etc.
+- Record/Liloquy button next to play/stop?
 """
 
 #%% Import libraries
+
 # GUI with tkinter
 from tkinter import Tk, Label, Button, Scale, Frame, Entry, PhotoImage, ttk, OptionMenu, StringVar
-from PIL import Image
+
 # Numerical processing with numpy
 import numpy as np
+
+# Check files exist with os.path
 import os.path
 
 # Music player from pygame
@@ -145,7 +154,7 @@ lbl3.grid(column=3, row=0, sticky="W")
 lbl4 = Label(top_frame, text="C", font=("Arial", 12),bg='Blue')
 lbl4.grid(column=4, row=0, sticky="W")
 
-# Update the value of each slider
+# Callback to update the value of each slider
 def update_labels(self):
     keyConst = chords_full.index(keyVar.get()) # keyVar.get() = 'D' -> keyConst = 2
     lbl1.configure(text=chords_full[(keyConst+note_chord_map[chord1_scale.get()])%12]+minor_tag[chord1_scale.get()]) # keyVar.get()
@@ -153,6 +162,35 @@ def update_labels(self):
     lbl3.configure(text=chords_full[(keyConst+note_chord_map[chord3_scale.get()])%12]+minor_tag[chord3_scale.get()])
     lbl4.configure(text=chords_full[(keyConst+note_chord_map[chord4_scale.get()])%12]+minor_tag[chord4_scale.get()])
 
+# Callback to update the value of each slider for a theme preset of chords
+def update_theme(self):
+    themeVal = themeVar.get() # keyVar.get() = 'D' -> keyConst = 2
+    
+    if themeVal == 'Happy':
+        # 1-5-6-4 e.g. C G Am F
+        # BPM 75
+        chord1_scale.set(0)
+        chord2_scale.set(4)
+        chord3_scale.set(5)
+        chord4_scale.set(3)
+        
+        bpm_entry.delete(0, 'end') 
+        bpm_entry.insert(0, 75)
+        
+    elif themeVal == 'Sad':
+        # 6-2-3-6 e.g. Am Dm Em Am
+        # BPM 50
+        chord1_scale.set(5)
+        chord2_scale.set(1)
+        chord3_scale.set(2)
+        chord4_scale.set(5)
+        
+        bpm_entry.delete(0, 'end') 
+        bpm_entry.insert(0, 55)
+    
+    update_labels(self)
+
+# Define sliders for each chord
 chord1_scale = Scale(top_frame,from_=0,to=6,bg='Purple',command=update_labels,showvalue=0)
 chord1_scale.grid(column=1,row=1)
 
@@ -188,9 +226,7 @@ playFile = "./icons/PlayIcon.png"
 if not(os.path.exists(playFile)):
     print('Cannot find: '+playFile)
     
-#im = Image.open(playFile)    
 photo = PhotoImage(file = playFile) 
-#photo = PhotoImage(im) 
 # Resizing image to fit on button 
 play_img = photo.subsample(6) 
 
@@ -202,8 +238,6 @@ play_chord_btn.grid(column=1,row=2)
 
 # Picture for stop button
 stopFile = "./icons/StopIcon.png"
-#im = Image.open(stopFile)    
-#photo = PhotoImage(im) 
 photo = PhotoImage(file = stopFile) 
 # Resizing image to fit on button 
 stop_img = photo.subsample(6) 
@@ -228,7 +262,6 @@ rpt_entry.insert(0,'2')
 # Tempo in BPM
 #-----------------
 # BPM Label
-#bpm_lbl = Label(top_frame, text="BPM:", font=("Arial", 10),bg='Blue')
 bpm_lbl = Label(stdTab, text="BPM:", font=("Arial", 10))#,bg='Blue')
 bpm_lbl.grid(column=6, row=2, sticky="W")
 bpm_lbl2 = Label(advTab, text="BPM:", font=("Arial", 10))#,bg='Blue')
@@ -244,7 +277,7 @@ bpm_entry_adv.grid(column=7,row=2)
 bpm_entry.insert(0,'75')
 bpm_entry_adv.insert(0,'75')
 
-# Preset themes/chords for Basic/standard
+# Preset themes/chords for Basic/Standard
 #-----------
 theme_lbl = Label(stdTab, text="Theme:", font=("Arial",10))
 theme_lbl.grid(column=6, row=3, sticky="W")
@@ -253,7 +286,7 @@ themeVar = StringVar(root)
 themes = [ 'Happy','Sad']
 themeVar.set(themes[0]) # set the default option
 
-chooseThemeMenu = OptionMenu(stdTab, themeVar, *themes)
+chooseThemeMenu = OptionMenu(stdTab, themeVar, *themes,command=update_theme)
 chooseThemeMenu.grid(column=7, row=3, sticky="W")
 
 # Major key
@@ -268,7 +301,7 @@ keyVar.set(keys[0]) # set the default option
 choosekeyMenu = OptionMenu(advTab, keyVar, *keys,command=update_labels)
 choosekeyMenu.grid(column=7, row=3, sticky="W")
 
-#%% Define buttons for piano keys
+#%% Define buttons for piano keys to play asynchronously over background chords
 bkey_row = 3
 wkey_row = 4
 
@@ -322,5 +355,6 @@ A_btn.grid(column=10, columnspan=2,row=wkey_row)
 # B key
 B_btn = Button(btm_frame, width=key_width, height=key_height, text="B", command=sound_dict['B4'].play, bg="white", fg="black")
 B_btn.grid(column=12, columnspan=2,row=wkey_row)
- 
+
+#%% Run GUI
 root.mainloop()
