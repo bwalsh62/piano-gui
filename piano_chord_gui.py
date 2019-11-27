@@ -248,6 +248,20 @@ stop_img = photo.subsample(6)
 stop_btn = Button(top_frame, width=36,height=36, text="Stop",command=mixer.stop, image=stop_img)
 stop_btn.grid(column=1,row=2)
 
+# Record/Transcribe
+#------------------
+
+# Picture for record button
+recordFile = "./icons/RecordIcon.png"
+photo = PhotoImage(file = recordFile) 
+# Resizing image to fit on button 
+record_img = photo.subsample(8) 
+
+# Button to stop
+record_btn = Button(top_frame, width=36,height=36, image=record_img)
+record_btn.grid(column=2,row=2)
+
+
 # Number of repeats
 #------------------
 # Repeat # Label
@@ -361,14 +375,14 @@ B_btn.grid(column=12, columnspan=2,row=wkey_row)
 #%% Main menu at bottom
 
 # Picture for create option in menu
-create_icon_file = r".\icons\Menu_CreateIcon.png"
+create_icon_file = r".\icons\Menu_WriteIcon.png"
 photo = PhotoImage(file = create_icon_file) 
 # Resizing image to fit on button 
-create_menu_img = photo.subsample(7) 
+create_menu_img = photo.subsample(6) 
 
 # Button to choose Create option
 create_btn = Button(menu_frame, width=36,height=36, image=create_menu_img)
-create_btn.grid(column=1,row=wkey_row+1)
+create_btn.grid(column=1,row=wkey_row+1, padx=18)
 
 # Picture for listen option in menu
 listen_icon_file = r".\icons\Menu_ListenIcon.png"
@@ -378,7 +392,27 @@ listen_menu_img = photo.subsample(6)
 
 # Button to choose Listen option
 listen_btn = Button(menu_frame, width=36,height=36, image=listen_menu_img)
-listen_btn.grid(column=2,row=wkey_row+1)
+listen_btn.grid(column=2, row=wkey_row+1, padx=18)
+
+# Picture for profile option in menu
+profile_icon_file = r".\icons\Menu_ProfileIcon.png"
+photo = PhotoImage(file = profile_icon_file) 
+# Resizing image to fit on button 
+profile_menu_img = photo.subsample(6) 
+
+# Button to choose profile option
+profile_btn = Button(menu_frame, width=36,height=36, image=profile_menu_img)
+profile_btn.grid(column=3, row=wkey_row+1, padx=18)
+
+# Picture for setting option in menu
+settings_icon_file = r".\icons\Menu_SettingsIcon.png"
+photo = PhotoImage(file = settings_icon_file) 
+# Resizing image to fit on button 
+settings_menu_img = photo.subsample(6) 
+
+# Button to choose setting option
+settings_btn = Button(menu_frame, width=36,height=36, image=settings_menu_img)
+settings_btn.grid(column=4, row=wkey_row+1, padx=18)
 
 #%% Run GUI
 root.mainloop()
