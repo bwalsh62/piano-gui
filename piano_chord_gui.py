@@ -17,10 +17,8 @@ TO DO
 - Add string instrument for keyboard
 - Adjust volume so background music is softer
 -- Eventually have slider for adjustable volumes
-- Add +/- to adjust bpm
 - Script to redefine sound_C etc when instrument changes 
 - PyInstaller for application
-- Bottom menu for settings, etc.
 - Record/Liloquy button next to play/stop?
 """
 
@@ -83,12 +81,12 @@ mixer.init()
 
 chords_full = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B']
 
+min_bpm = 30
+max_bpm = 120
+               
 #%% Define functions for playing chords
 
 def chords_repeat():
-    
-    min_bpm = 30
-    max_bpm = 120
     
     # Get bpm from active tab
     tab_name = tab_parent.tab(tab_parent.select(), "text")
@@ -207,18 +205,29 @@ def update_theme(self):
     
     update_labels(self)
 
+# Callback to increase bpm with + sign
+def increase_bpm():
+    bpm_to_insert = min(int(bpm_entry.get())+5,max_bpm)
+    bpm_entry.delete(0, 'end') 
+    bpm_entry.insert(0, bpm_to_insert)
+
+def decrease_bpm():
+    bpm_to_insert = max(int(bpm_entry.get())-5,min_bpm)
+    bpm_entry.delete(0, 'end') 
+    bpm_entry.insert(0, bpm_to_insert)
+
 # Define sliders for each chord
 chord1_scale = Scale(advTab,from_=0,to=6,bg='Purple',command=update_labels,showvalue=0)
-chord1_scale.grid(column=1,row=1, rowspan=3)
+chord1_scale.grid(column=1,row=1, rowspan=3, padx=10)
 
 chord2_scale = Scale(advTab,from_=0,to=6,bg='Purple',command=update_labels,showvalue=0)
-chord2_scale.grid(column=2,row=1, rowspan=3)
+chord2_scale.grid(column=2,row=1, rowspan=3, padx=10)
 
 chord3_scale = Scale(advTab,from_=0,to=6,bg='Purple',command=update_labels,showvalue=0)
-chord3_scale.grid(column=3,row=1, rowspan=3)
+chord3_scale.grid(column=3,row=1, rowspan=3, padx=10)
 
 chord4_scale = Scale(advTab,from_=0,to=6,bg='Purple',command=update_labels,showvalue=0)
-chord4_scale.grid(column=4,row=1, rowspan=3)
+chord4_scale.grid(column=4,row=1, rowspan=3, padx=10)
 
 # Play/Loop chords
 #------------------
@@ -289,6 +298,12 @@ bpm_entry.grid(column=7,row=1)
 bpm_entry_adv = Entry(advTab, width=5)
 bpm_entry_adv.grid(column=7,row=1)
 
+# For standard, add +/- buttons for BPM
+bpm_plus_btn = Button(stdTab, text="+", width=3, command=increase_bpm)
+bpm_plus_btn.grid(column=8, row=1)
+bpm_minus_btn = Button(stdTab, text="-", width=3, command=decrease_bpm)
+bpm_minus_btn.grid(column=9, row=1)
+
 # Initialize Entry with default bpm = 75
 bpm_entry.insert(0,'75')
 bpm_entry_adv.insert(0,'75')
@@ -299,7 +314,7 @@ theme_lbl = Label(stdTab, text="Theme:", font=("Arial",10))
 theme_lbl.grid(column=6, row=3, sticky="W")
 # Define list with keys
 themeVar = StringVar(root)
-themes = [ 'Happy','Sad']
+themes = ['-Choose-','Happy','Sad']
 themeVar.set(themes[0]) # set the default option
 
 chooseThemeMenu = OptionMenu(stdTab, themeVar, *themes,command=update_theme)
