@@ -1,0 +1,3 @@
+[submodule "note-recognition"]
+	path = note-recognition
+	url = https://github.com/bwalsh62/note-recognition.git
