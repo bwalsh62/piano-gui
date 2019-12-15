@@ -64,3 +64,70 @@ sound_dict = {
 sound_paths = [C_path, Csharp_path, D_path, Dsharp_path,\
                E_path, F_path, Fsharp_path, G_path, Gsharp_path, \
 A_path, Asharp_path, B_path]
+
+#%%    
+freq_dict = {
+        'D2': 73.42,
+        'E2': 82.41,
+        'F2': 87.31,
+        'G2': 98.00,
+        'A2': 110.00,
+        'B2': 123.47,
+        'C3': 130.81,
+        'D3': 146.83,
+        'E3': 164.81,
+        'F3': 174.61,
+        'G3': 196.00,
+        'A3': 220.00,
+        'B3': 246.94,
+        'C4': 261.63,
+        'C#4': 277.187,
+        'D4': 293.66,
+        'D#4': 311.13,
+        'E4': 329.63,
+        'F4': 349.23,
+        'F#4': 370.00,
+        'G4': 392.00,
+        'G#4': 415.312,
+        'A4': 440.00,
+        'A#4': 466.172,
+        'B4': 493.88,
+        'C5': 523.25,
+        'D5': 587.33,
+        'E5': 659.25,
+        'F5': 698.46,
+        'G5': 783.99
+}
+
+#%% Music dictionary
+
+class music_dict:
+        
+    def __init__(self, note):        
+        
+        default_note = 'C4'
+        
+        if note in sound_dict.keys():
+            self.note = note # frequency in Hz
+            self.freq = freq_dict[note]
+            self.sound = sound_dict[note] 
+        else:                
+            print('Unknown input {}, setting to {}'.format(note,default_note))
+            self.note = default_note
+            self.freq = freq_dict[note]
+            self.sound = sound_dict[note]
+
+#%%
+class music_theme:
+    def __init__(self, theme):        
+        self.theme = theme # frequency in Hz
+        
+        if theme == 'Sad':
+            self.chords = [5,1,2,5]
+            self.bpm = 55
+        elif theme == 'Happy':
+            self.chords = [0,3,4,0]
+            self.bpm = 75
+        else:
+            self.chords = [0,4,5,3]
+            print('Unknown theme {}'.format(theme)) 

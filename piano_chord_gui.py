@@ -7,19 +7,29 @@ Creates .wav files for generated chord progression
 ./mel1.wav, ./mel2.wav and ./mel3.wav 
 
 Created on Mon Apr 22 20:12:40 2019
-Last updated November 26 2019
+Last updated December 3 2019
 
 @author: Ben Walsh
 for liloquy
 
 TO DO
 ----
-- Add string instrument for keyboard
+- ml_utils integrate with submodule for feat_extract
+- generalize location of pickle model
+
 - Adjust volume so background music is softer
 -- Eventually have slider for adjustable volumes
-- Script to redefine sound_C etc when instrument changes 
 - PyInstaller for application
-- Record/Liloquy button next to play/stop?
+- Operationalize Record/Liloquy button 
+    X Record 3 seconds and save
+    X Estimate note
+    X Play back note in piano
+    - Play on top of background melody
+- Add string instrument for keyboard
+- Script to redefine sound_C etc when instrument changes 
+
+# Use new music_dict from liloquy-git... separate from piano part?
+
 """
 
 #%% Import libraries
@@ -33,30 +43,58 @@ import numpy as np
 # Check files exist with os.path
 import os.path
 
+# Use built-in sound device
+import sounddevice as sd
+
 # Music player from pygame
 from pygame import mixer
 
 # Custom piano sound functions
-from piano_notes import sound_dict
+from piano_notes import music_dict, music_theme, freq_dict
 
 # Custom music function for making melody
 from gui_functions import chords_repeat_func
 
+#--------
+# All here and below should be separate from a submodule
+#
+# Update eventually to link up submodules from ML separately...
+#
+#from note-recognition.ml_utils import music_feat_extract
+from ml_utils import music_feat_extract
+
+# Pickle to load pre-trained model
+import pickle
+
+import matplotlib.pyplot as plt
+
+import time
+
+#%% Define constants
+
+# Music notes
+chords_full = ('C','C#','D','D#','E','F','F#','G','G#','A','A#','B')
+
+# Constants for beats per minute
+min_bpm = 30
+max_bpm = 120
+default_bpm = 75
+
 #%% Initialize GUI
 
 root = Tk()
-root.title('liloquy: piano chords')
+root.title('liloquy - find your song')
 root.geometry('{}x{}'.format(325, 515))
 
 # Create main frame containers
+#------------
+
 top_frame = Frame(root, bg='blue', width=340, height=400, pady=2)
 piano_frame = Frame(root, bg='brown', width=340, height=500, padx=2, pady=2)
 menu_frame = Frame(root, bg='gray', width=340, height=180, padx=2, pady=2)
 
-# Tabbed interface 
-#-------------------------------------
-# Advanced: type bpm, adjust chords manually, ...
-# Simple, +/- bpm, preset happy/sad chords, ...
+# Tabbed interface to separate standard and advanced features
+#------------
 
 tab_parent = ttk.Notebook(top_frame)
 
@@ -78,11 +116,6 @@ menu_frame.grid(row=2, sticky="ew")
 
 # Initialize music mixer
 mixer.init()
-
-chords_full = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B']
-
-min_bpm = 30
-max_bpm = 120
                
 #%% Define functions for playing chords
 
@@ -90,29 +123,28 @@ def chords_repeat():
     
     # Get bpm from active tab
     tab_name = tab_parent.tab(tab_parent.select(), "text")
-    #print('active tab = '+tab_name) # for debugging
     if tab_name == 'Standard':
         bpm_entry_input = bpm_entry
-    if tab_name =='Advanced':
+    if tab_name == 'Advanced':
         bpm_entry_input = bpm_entry_adv
         
     # Get input entry for bpm
     if bpm_entry_input.get().isdigit():
         # Setting minimum bpm
         if int(bpm_entry_input.get())<min_bpm:
-            print('BPM too low. Using '+str(min_bpm)+' for bpm')  
+            print('BPM too low. Using {} for bpm'.format(min_bpm)) 
             bpm_entry_input.delete(0, 'end') 
             bpm_entry_input.insert(0, min_bpm)
         # Setting maximum bpm
         if int(bpm_entry_input.get())>max_bpm:
-            print('BPM too high. Using '+str(max_bpm)+' for bpm')  
+            print('BPM too high. Using {} for bpm'.format(max_bpm))  
             bpm_entry_input.delete(0, 'end') 
             bpm_entry_input.insert(0, max_bpm)
         bpm = int(bpm_entry.get())
     else:
-        bpm = 75
-        print('Invalid entry: '+bpm_entry_input.get()+', using '+str(bpm)+' for bpm')  
-        bpm_entry_input.delete(0, 'end') # this will delete everything inside the entry
+        bpm = default_bpm
+        print('Invalid entry: {}, using {} for bpm'.format(bpm_entry_input.get(),bpm))  
+        bpm_entry_input.delete(0, 'end') # clears entry
         bpm_entry_input.insert(0, bpm)
         
     # Top-line melody
@@ -145,13 +177,58 @@ def chords_repeat():
     
     key_constant = chords_full.index(keyVar.get()) # keyVar.get() = 'D' -> keyConst = 2
     
+    # Eventually have volume constant input from GUI    
+#    # Change volume with this? How does this work?
+#    mixer.music.set_volume
+    
     chords_repeat_func(bpm, n_repeats, mel_array, key_constant)
+
+#%% Define function for recording music
+
+# Load ML model
+modelName = r"C:\Users\benja\OneDrive\Documents\Python\liloquy-git\note-recognition\model.sav"
  
+# load the model from disk
+loaded_model = pickle.load(open(modelName, 'rb'))
+
+def record_music():
+
+    fs = 44.1e3
+    hum_len = 130000 # to be consistent from ML model - should be imported
+
+    # Eventually generalize duration or detect end
+#    duration = 3.5  # seconds
+#    recorded_sound = sd.rec(int(duration * fs), samplerate=fs, channels=2)
+    recorded_sound = sd.rec(hum_len, samplerate=fs, channels=2)
+
+    # Pause to record, giving a 10% buffer
+    time.sleep(hum_len/fs*1.1)
+    
+    hum = np.empty((1,hum_len))
+    # Take single channel
+#    hum[0,:] = recorded_sound[:hum_len,1]
+    hum[0,:] = recorded_sound[:,1]
+    
+    plt.plot(hum[0,:])
+    plt.show()
+    
+    X_feat = music_feat_extract(hum,fs,freq_dict)
+    print(X_feat)
+    
+    predicted_notes = loaded_model.predict(X_feat)
+    for note in predicted_notes:
+        print("Predicted note: "+note)
+    
+    # Play piano at predicted sound
+    music_dict(note).sound.play()
+
+    return recorded_sound
+
 #%% Define sliders for Chords
         
-chords = ['C','D','E','F','G','A','B']
-note_chord_map = [0,2,4,5,7,9,11]
-minor_tag = ['','m','m','','','m','dim']
+chords = ('C','D','E','F','G','A','B')
+note_chord_map = (0,2,4,5,7,9,11)
+minor_tag = ('','m','m','','','m','dim')
 
 # Label for chord/slider 1
 lbl1 = Label(advTab, text="C", font=("Arial", 12))#,bg='Blue')
@@ -172,36 +249,21 @@ lbl4.grid(column=4, row=0, sticky="W")
 # Callback to update the value of each slider
 def update_labels(self):
     keyConst = chords_full.index(keyVar.get()) # keyVar.get() = 'D' -> keyConst = 2
-    lbl1.configure(text=chords_full[(keyConst+note_chord_map[chord1_scale.get()])%12]+minor_tag[chord1_scale.get()]) # keyVar.get()
+    lbl1.configure(text=chords_full[(keyConst+note_chord_map[chord1_scale.get()])%12]+minor_tag[chord1_scale.get()]) 
     lbl2.configure(text=chords_full[(keyConst+note_chord_map[chord2_scale.get()])%12]+minor_tag[chord2_scale.get()])
     lbl3.configure(text=chords_full[(keyConst+note_chord_map[chord3_scale.get()])%12]+minor_tag[chord3_scale.get()])
     lbl4.configure(text=chords_full[(keyConst+note_chord_map[chord4_scale.get()])%12]+minor_tag[chord4_scale.get()])
 
 # Callback to update the value of each slider for a theme preset of chords
 def update_theme(self):
-    themeVal = themeVar.get() # keyVar.get() = 'D' -> keyConst = 2
+    theme = music_theme(themeVar.get()) 
+    chord1_scale.set(theme.chords[0])
+    chord2_scale.set(theme.chords[1])
+    chord3_scale.set(theme.chords[2])
+    chord4_scale.set(theme.chords[3])
     
-    if themeVal == 'Happy':
-        # 1-5-6-4 e.g. C G Am F
-        # BPM 75
-        chord1_scale.set(0)
-        chord2_scale.set(4)
-        chord3_scale.set(5)
-        chord4_scale.set(3)
-        
-        bpm_entry.delete(0, 'end') 
-        bpm_entry.insert(0, 75)
-        
-    elif themeVal == 'Sad':
-        # 6-2-3-6 e.g. Am Dm Em Am
-        # BPM 50
-        chord1_scale.set(5)
-        chord2_scale.set(1)
-        chord3_scale.set(2)
-        chord4_scale.set(5)
-        
-        bpm_entry.delete(0, 'end') 
-        bpm_entry.insert(0, 55)
+    bpm_entry.delete(0, 'end') 
+    bpm_entry.insert(0, theme.bpm)
     
     update_labels(self)
 
@@ -267,7 +329,7 @@ photo = PhotoImage(file = recordFile)
 record_img = photo.subsample(8) 
 
 # Button to stop
-record_btn = Button(top_frame, width=36,height=36, image=record_img)
+record_btn = Button(top_frame, width=36,height=36, image=record_img, command=record_music)
 record_btn.grid(column=2,row=2)
 
 
@@ -305,8 +367,8 @@ bpm_minus_btn = Button(stdTab, text="-", width=3, command=decrease_bpm)
 bpm_minus_btn.grid(column=9, row=1)
 
 # Initialize Entry with default bpm = 75
-bpm_entry.insert(0,'75')
-bpm_entry_adv.insert(0,'75')
+bpm_entry.insert(0,str(default_bpm))
+bpm_entry_adv.insert(0,str(default_bpm))
 
 # Preset themes/chords for Basic/Standard
 #-----------
@@ -326,7 +388,7 @@ key_lbl = Label(advTab, text="Key:", font=("Arial",10))
 key_lbl.grid(column=6, row=2, sticky="W")
 # Define list with keys
 keyVar = StringVar(root)
-keys = [ 'C','D','E','F','G','A','B']
+keys = ('C','D','E','F','G','A','B')
 keyVar.set(keys[0]) # set the default option
 
 choosekeyMenu = OptionMenu(advTab, keyVar, *keys,command=update_labels)
@@ -340,51 +402,51 @@ key_width = 5
 key_height = 8
 
 # C# key
-Csharp_btn = Button(piano_frame, width=key_width, height=key_height, text="C#", command=sound_dict['C#4'].play, bg="black", fg="white")
+Csharp_btn = Button(piano_frame, width=key_width, height=key_height, text="C#", command=music_dict('C#4').sound.play, bg="black", fg="white")
 Csharp_btn.grid(column=1, columnspan=2,row=bkey_row)
 
 # Dsharp key
-Dsharp_btn = Button(piano_frame, width=key_width, height=key_height, text="D#", command=sound_dict['D#4'].play, bg="black", fg="white")
+Dsharp_btn = Button(piano_frame, width=key_width, height=key_height, text="D#", command=music_dict('D#4').sound.play, bg="black", fg="white")
 Dsharp_btn.grid(column=3, columnspan=2,row=bkey_row)
 
 # Fsharp key
-Fsharp_btn = Button(piano_frame, width=key_width, height=key_height, text="F#", command=sound_dict['F#4'].play, bg="black", fg="white")
+Fsharp_btn = Button(piano_frame, width=key_width, height=key_height, text="F#", command=music_dict('F#4').sound.play, bg="black", fg="white")
 Fsharp_btn.grid(column=7, columnspan=2,row=bkey_row)
 
 # Gsharp key
-Gsharp_btn = Button(piano_frame, width=key_width, height=key_height, text="G#", command=sound_dict['G#4'].play, bg="black", fg="white")
+Gsharp_btn = Button(piano_frame, width=key_width, height=key_height, text="G#", command=music_dict('G#4').sound.play, bg="black", fg="white")
 Gsharp_btn.grid(column=9, columnspan=2,row=bkey_row)
 
 # Asharp key
-Asharp_btn = Button(piano_frame, width=key_width, height=key_height, text="A#", command=sound_dict['A#4'].play, bg="black", fg="white")
+Asharp_btn = Button(piano_frame, width=key_width, height=key_height, text="A#", command=music_dict('A#4').sound.play, bg="black", fg="white")
 Asharp_btn.grid(column=11, columnspan=2,row=bkey_row)
 
 # C key
-C_btn = Button(piano_frame, width=key_width, height=key_height, text="C", command=sound_dict['C4'].play, bg="white", fg="black")
+C_btn = Button(piano_frame, width=key_width, height=key_height, text="C", command=music_dict('C4').sound.play, bg="white", fg="black")
 C_btn.grid(column=0, columnspan=2, row=wkey_row)
 
 # D key
-D_btn = Button(piano_frame, width=key_width, height=key_height, text="D", command=sound_dict['D4'].play, bg="white", fg="black")
+D_btn = Button(piano_frame, width=key_width, height=key_height, text="D", command=music_dict('D4').sound.play, bg="white", fg="black")
 D_btn.grid(column=2, columnspan=2,row=wkey_row)
 
 # E key
-E_btn = Button(piano_frame, width=key_width, height=key_height, text="E", command=sound_dict['E4'].play, bg="white", fg="black")
+E_btn = Button(piano_frame, width=key_width, height=key_height, text="E", command=music_dict('E4').sound.play, bg="white", fg="black")
 E_btn.grid(column=4, columnspan=2,row=wkey_row)
 
 # F key
-F_btn = Button(piano_frame, width=key_width, height=key_height, text="F", command=sound_dict['F4'].play, bg="white", fg="black")
+F_btn = Button(piano_frame, width=key_width, height=key_height, text="F", command=music_dict('F4').sound.play, bg="white", fg="black")
 F_btn.grid(column=6, columnspan=2,row=wkey_row)
 
 # G key
-G_btn = Button(piano_frame, width=key_width, height=key_height, text="G", command=sound_dict['G4'].play, bg="white", fg="black")
+G_btn = Button(piano_frame, width=key_width, height=key_height, text="G", command=music_dict('G4').sound.play, bg="white", fg="black")
 G_btn.grid(column=8, columnspan=2,row=wkey_row)
 
 # A key
-A_btn = Button(piano_frame, width=key_width, height=key_height, text="A", command=sound_dict['A4'].play, bg="white", fg="black")
+A_btn = Button(piano_frame, width=key_width, height=key_height, text="A", command=music_dict('A4').sound.play, bg="white", fg="black")
 A_btn.grid(column=10, columnspan=2,row=wkey_row)
 
 # B key
-B_btn = Button(piano_frame, width=key_width, height=key_height, text="B", command=sound_dict['B4'].play, bg="white", fg="black")
+B_btn = Button(piano_frame, width=key_width, height=key_height, text="B", command=music_dict('B4').sound.play, bg="white", fg="black")
 B_btn.grid(column=12, columnspan=2,row=wkey_row)
 
 #%% Main menu at bottom
