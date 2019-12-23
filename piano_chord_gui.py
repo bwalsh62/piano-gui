@@ -30,6 +30,8 @@ TO DO
 
 # Use new music_dict from liloquy-git... separate from piano part?
 
+[ ] Add playback of recorded hums
+
 """
 
 #%% Import libraries
@@ -54,6 +56,8 @@ from piano_notes import music_dict, music_theme, freq_dict
 
 # Custom music function for making melody
 from gui_functions import chords_repeat_func
+
+from melody import make_melody
 
 #--------
 # All here and below should be separate from a submodule
@@ -193,18 +197,25 @@ loaded_model = pickle.load(open(modelName, 'rb'))
 
 def record_music():
 
-    fs = 44.1e3
-    hum_len = 130000 # to be consistent from ML model - should be imported
-
+    fs = 44100
+    
+    # Length of single (shortest) note
+    note_len_time = 1
+    note_len_n_samples = fs * note_len_time
+    
+    # Number of notes being recorded
+    rec_notes_total = 1
+    rec_len_n_samples = rec_notes_total * note_len_n_samples
+    
     # Eventually generalize duration or detect end
 #    duration = 3.5  # seconds
 #    recorded_sound = sd.rec(int(duration * fs), samplerate=fs, channels=2)
-    recorded_sound = sd.rec(hum_len, samplerate=fs, channels=2)
+    recorded_sound = sd.rec(rec_len_n_samples, samplerate=fs, channels=2)
 
     # Pause to record, giving a 10% buffer
-    time.sleep(hum_len/fs*1.1)
+    time.sleep(rec_len_n_samples/fs*1.1)
     
-    hum = np.empty((1,hum_len))
+    hum = np.empty((1,rec_len_n_samples))
     # Take single channel
 #    hum[0,:] = recorded_sound[:hum_len,1]
     hum[0,:] = recorded_sound[:,1]
@@ -221,6 +232,40 @@ def record_music():
     
     # Play piano at predicted sound
     music_dict(note).sound.play()
+        
+    # Hummed melody
+    mel_hum_wav_name = './mel_hum.wav'
+    
+    # This should be a modular function since it is used in chords_Repeat_func
+    #-------------------------------
+    
+    # Get bpm from active tab
+    tab_name = tab_parent.tab(tab_parent.select(), "text")
+    if tab_name == 'Standard':
+        bpm_entry_input = bpm_entry
+    if tab_name == 'Advanced':
+        bpm_entry_input = bpm_entry_adv
+    
+    # Get input entry for bpm
+    if bpm_entry_input.get().isdigit():
+        # Setting minimum bpm
+        if int(bpm_entry_input.get())<min_bpm:
+            print('BPM too low. Using {} for bpm'.format(min_bpm)) 
+            bpm_entry_input.delete(0, 'end') 
+            bpm_entry_input.insert(0, min_bpm)
+        # Setting maximum bpm
+        if int(bpm_entry_input.get())>max_bpm:
+            print('BPM too high. Using {} for bpm'.format(max_bpm))  
+            bpm_entry_input.delete(0, 'end') 
+            bpm_entry_input.insert(0, max_bpm)
+        bpm = int(bpm_entry.get())
+    else:
+        bpm = default_bpm
+        print('Invalid entry: {}, using {} for bpm'.format(bpm_entry_input.get(),bpm))  
+        bpm_entry_input.delete(0, 'end') # clears entry
+        bpm_entry_input.insert(0, bpm)
+        
+    mel_hum_wav_name = make_melody(mel_hum_wav_name,predicted_notes,bpm,mode="note_name",debug=0)
 
     return recorded_sound
 
@@ -376,7 +421,7 @@ theme_lbl = Label(stdTab, text="Theme:", font=("Arial",10))
 theme_lbl.grid(column=6, row=3, sticky="W")
 # Define list with keys
 themeVar = StringVar(root)
-themes = ['-Choose-','Happy','Sad']
+themes = ['-Choose-','Cheerful','Somber']
 themeVar.set(themes[0]) # set the default option
 
 chooseThemeMenu = OptionMenu(stdTab, themeVar, *themes,command=update_theme)
