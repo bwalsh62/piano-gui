@@ -29,7 +29,7 @@ def chords_repeat_func(bpm, n_repeats, base_notes_array, key_constant=0):
     
     # Top-line melody
     mel1_wav_name = './mel1.wav'
-    mel1_wav_name = make_melody(mel1_wav_name,note_array,bpm)
+    mel1_wav_name = make_melody(mel1_wav_name,note_array,bpm,debug=0)
 
     mel2_wav_name = './mel2.wav'
     mel2_wav_name = make_melody(mel2_wav_name,[(note+4-flat_third[idx])%12 for idx,note in enumerate(note_array)],bpm)

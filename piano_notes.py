@@ -18,8 +18,6 @@ mixer.init()
 # Paths to piano wav files
 music_fpath = "./music_files/piano/"
 C_path = music_fpath+"Piano.mf.C4_2p4s.wav"
-#print('C_path ='+C_path)
-#print('Current wd = '+getcwd())
 Csharp_path = music_fpath+"Piano.mf.Db4_2p5s.wav"
 D_path = music_fpath+"Piano.mf.D4_2p4s.wav"
 Dsharp_path = music_fpath+"Piano.mf.Eb4_2p5s.wav"
@@ -60,6 +58,24 @@ sound_dict = {
         'A#4': sound_Asharp,
         'B4': sound_B,
 }
+
+sound_path_dict = {
+        'C4': C_path,
+        'C#4': Csharp_path,
+        'D4': D_path,
+        'D#4': Dsharp_path,
+        'E4': E_path,
+        'F4': F_path,
+        'F#4': Fsharp_path,
+        'G4': G_path,
+        'G#4': Gsharp_path,
+        'A4': A_path,
+        'A#4': Asharp_path,
+        'B4': B_path,
+}
+
+note_indices = ('C4','C#4','D4','D#4','E4',\
+        'F4','F#4','G4','G#4','A4','A#4','B4')
 
 sound_paths = [C_path, Csharp_path, D_path, Dsharp_path,\
                E_path, F_path, Fsharp_path, G_path, Gsharp_path, \
@@ -122,12 +138,13 @@ class music_theme:
     def __init__(self, theme):        
         self.theme = theme # frequency in Hz
         
-        if theme == 'Sad':
+        if theme == 'Somber':
             self.chords = [5,1,2,5]
             self.bpm = 55
-        elif theme == 'Happy':
+        elif theme == 'Cheerful':
             self.chords = [0,3,4,0]
             self.bpm = 75
         else:
             self.chords = [0,4,5,3]
             print('Unknown theme {}'.format(theme)) 
+            self.bpm = 75
