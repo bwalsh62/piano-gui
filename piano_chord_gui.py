@@ -30,7 +30,8 @@ TO DO
 
 # Use new music_dict from liloquy-git... separate from piano part?
 
-[ ] Add playback of recorded hums
+[ ] Recorded hums input arg for num_notes - not 2x default
+[ ] Get musicMixDict as input function, not repeat it
 
 """
 
@@ -45,9 +46,6 @@ import numpy as np
 # Check files exist with os.path
 import os.path
 
-# Use built-in sound device
-import sounddevice as sd
-
 # Music player from pygame
 from pygame import mixer
 
@@ -55,7 +53,7 @@ from pygame import mixer
 from piano_notes import music_dict, music_theme, freq_dict
 
 # Custom music function for making melody
-from gui_functions import chords_repeat_func
+from gui_functions import play_music_func, record_music
 
 from melody import make_melody
 
@@ -71,8 +69,6 @@ from ml_utils import music_feat_extract
 import pickle
 
 import matplotlib.pyplot as plt
-
-import time
 
 #%% Define constants
 
@@ -93,9 +89,9 @@ root.geometry('{}x{}'.format(325, 515))
 # Create main frame containers
 #------------
 
-top_frame = Frame(root, bg='blue', width=340, height=400, pady=2)
-piano_frame = Frame(root, bg='brown', width=340, height=500, padx=2, pady=2)
-menu_frame = Frame(root, bg='gray', width=340, height=180, padx=2, pady=2)
+top_frame = Frame(root, bg='blue', width=500, height=400, pady=2)
+piano_frame = Frame(root, bg='brown', width=500, height=500, padx=2, pady=2)
+menu_frame = Frame(root, bg='gray', width=500, height=180, padx=2, pady=2)
 
 # Tabbed interface to separate standard and advanced features
 #------------
@@ -121,9 +117,9 @@ menu_frame.grid(row=2, sticky="ew")
 # Initialize music mixer
 mixer.init()
                
-#%% Define functions for playing chords
+#%% Define functions for playing music - hummed melody and/or background chords
 
-def chords_repeat():
+def play_music():
     
     # Get bpm from active tab
     tab_name = tab_parent.tab(tab_parent.select(), "text")
@@ -150,8 +146,25 @@ def chords_repeat():
         print('Invalid entry: {}, using {} for bpm'.format(bpm_entry_input.get(),bpm))  
         bpm_entry_input.delete(0, 'end') # clears entry
         bpm_entry_input.insert(0, bpm)
-        
-    # Top-line melody
+    
+    # Retrieve which melody to play
+    #-------------------------------
+    
+    # Should get this is as input
+    musicMixDict = dict(
+        {'Both':(True,True),
+         'Background Only':(True,False),
+         'Melody Only':(False,True)
+        })
+    
+    music_mix_sel = musicMixVar.get()
+    if musicMixDict.get(music_mix_sel) == None:
+        print('No playback selected or unknown option')
+    else:
+        play_chords_sel, play_mel_sel = musicMixDict[music_mix_sel]
+        print('Playing chords = {}, playing melody = {}'.format(play_chords_sel,play_mel_sel))
+    
+    # Base chords
     note_num1 = chord1_scale.get()   
     note_num2 = chord2_scale.get()   
     note_num3 = chord3_scale.get()   
@@ -164,7 +177,7 @@ def chords_repeat():
     #  E.g. to play once, loops=0, to play twice, loops=1 ,etc.
     
     if tab_name =='Standard':
-        # Hiding repeat # and just loop 'forever' in standard mode
+        # Hiding repeat number and just loop 'forever' in standard mode
         n_repeats = 100
     else:
         if rpt_entry.get().isdigit():
@@ -185,40 +198,33 @@ def chords_repeat():
 #    # Change volume with this? How does this work?
 #    mixer.music.set_volume
     
-    chords_repeat_func(bpm, n_repeats, mel_array, key_constant)
+    play_music_func(bpm, n_repeats, mel_array, key_constant, play_chords_sel, play_mel_sel)
 
-#%% Define function for recording music
+#%% Define function for recording then transcribing music
 
 # Load ML model
 modelName = r"C:\Users\benja\OneDrive\Documents\Python\liloquy-git\note-recognition\model.sav"
- 
-# load the model from disk
 loaded_model = pickle.load(open(modelName, 'rb'))
 
-def record_music():
+#
+# Function to record a sound then transcribe to a melody in piano
+# record_transcribe_music(note_len_time = 1,rec_notes_total = 3, fs = 44100)
+#   Inputs:
+#       - note_len_time: Length in seconds of (shortest) note
+#       - rec_notes_total: Number of consecutive notes to record
 
-    fs = 44100
+def record_transcribe_music(note_len_time = 1,rec_notes_total = 3, fs = 44100):
+            
+    recorded_sound = record_music(rec_notes_total, note_len_time, fs)
     
-    # Length of single (shortest) note
-    note_len_time = 1
-    note_len_n_samples = fs * note_len_time
+    # Initialize matrix of hummed notes
+    hum = np.empty((rec_notes_total,fs * note_len_time))
     
-    # Number of notes being recorded
-    rec_notes_total = 1
-    rec_len_n_samples = rec_notes_total * note_len_n_samples
-    
-    # Eventually generalize duration or detect end
-#    duration = 3.5  # seconds
-#    recorded_sound = sd.rec(int(duration * fs), samplerate=fs, channels=2)
-    recorded_sound = sd.rec(rec_len_n_samples, samplerate=fs, channels=2)
-
-    # Pause to record, giving a 10% buffer
-    time.sleep(rec_len_n_samples/fs*1.1)
-    
-    hum = np.empty((1,rec_len_n_samples))
     # Take single channel
-#    hum[0,:] = recorded_sound[:hum_len,1]
-    hum[0,:] = recorded_sound[:,1]
+    # Assume that hum_length is recorded length divided by number of notes
+    # Eventually generalize duration or detect end
+    for note in range(rec_notes_total):
+        hum[note,:] = recorded_sound[fs * note_len_time*note:fs * note_len_time*(note+1),1]
     
     plt.plot(hum[0,:])
     plt.show()
@@ -236,7 +242,7 @@ def record_music():
     # Hummed melody
     mel_hum_wav_name = './mel_hum.wav'
     
-    # This should be a modular function since it is used in chords_Repeat_func
+    # This should be a modular function since it is used in chords_repeat_func
     #-------------------------------
     
     # Get bpm from active tab
@@ -348,7 +354,9 @@ photo = PhotoImage(file = playFile)
 # Resizing image to fit on button 
 play_img = photo.subsample(6) 
 
-play_chord_btn = Button(top_frame, width=36, height=36,text="Play", command=chords_repeat, image=play_img)
+#play_chord_btn = Button(top_frame, width=36, height=36,text="Play", command=chords_repeat, image=play_img)
+play_chord_btn = Button(top_frame, width=36, height=36,text="Play", command=play_music, image=play_img)
+
 play_chord_btn.grid(column=0,row=2)
 
 # Stop chords
@@ -373,10 +381,27 @@ photo = PhotoImage(file = recordFile)
 # Resizing image to fit on button 
 record_img = photo.subsample(8) 
 
-# Button to stop
-record_btn = Button(top_frame, width=36,height=36, image=record_img, command=record_music)
-record_btn.grid(column=2,row=2)
+# Button to record and transcribe
+record_transcribe_btn = Button(top_frame, width=36,height=36, image=record_img, command=record_transcribe_music)
+record_transcribe_btn.grid(column=2,row=2)
 
+# Choose playback - background, melody, both
+#--------------------------
+
+# Define list with music mixing options
+musicMixVar = StringVar(root)
+
+musicMixDict = dict(
+        {'Both':(1,1),
+         'Background Only':(1,0),
+         'Melody Only':(0,1)
+        })
+    
+musicMixOptions = list(musicMixDict.keys())
+musicMixVar.set(musicMixOptions[0]) # set the default option
+
+chooseMixMenu = OptionMenu(top_frame, musicMixVar, *musicMixOptions)
+chooseMixMenu.grid(column=0, row=3)
 
 # Number of repeats
 #------------------
@@ -419,6 +444,7 @@ bpm_entry_adv.insert(0,str(default_bpm))
 #-----------
 theme_lbl = Label(stdTab, text="Theme:", font=("Arial",10))
 theme_lbl.grid(column=6, row=3, sticky="W")
+
 # Define list with keys
 themeVar = StringVar(root)
 themes = ['-Choose-','Cheerful','Somber']
@@ -444,7 +470,7 @@ bkey_row = 3
 wkey_row = 4
 
 key_width = 5
-key_height = 8
+key_height = 7
 
 # C# key
 Csharp_btn = Button(piano_frame, width=key_width, height=key_height, text="C#", command=music_dict('C#4').sound.play, bg="black", fg="white")
