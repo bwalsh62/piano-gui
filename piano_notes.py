@@ -135,16 +135,21 @@ class music_dict:
 
 #%%
 class music_theme:
-    def __init__(self, theme):        
-        self.theme = theme # frequency in Hz
+    def __init__(self, theme='pop'):        
+        self.theme = theme.lower() 
+        default_theme = 'pop'
         
-        if theme == 'Somber':
+        if self.theme == 'somber':
             self.chords = [5,1,2,5]
             self.bpm = 55
-        elif theme == 'Cheerful':
+        elif self.theme == 'cheerful':
             self.chords = [0,3,4,0]
             self.bpm = 75
-        else:
+        elif self.theme == 'pop':
             self.chords = [0,4,5,3]
-            print('Unknown theme {}'.format(theme)) 
-            self.bpm = 75
+            self.bpm = 70
+        else:
+            print('Unknown input theme {}\nSetting to default {}'.format(self.theme,default_theme)) 
+            self.theme = default_theme
+            self.chords = [0,4,5,3]
+            self.bpm = 70

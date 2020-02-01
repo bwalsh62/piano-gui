@@ -51,15 +51,15 @@ from pygame import mixer
 # Callback when pressing Play on GUI
 #
 
-def play_music_func(bpm, n_repeats, base_notes_array, key_constant=0, play_chords_sel=1, play_mel_sel=0):
+def play_music_func(bpm, base_note_arr, n_repeats=1, key_constant=0, play_chords_sel=1, play_mel_sel=0):
     
     # Convert from 0=C, 1=D, 2=E, 3=F... to 0=C, 2=D, 4=E, 5=F, ...
     note_chord_map = [0,2,4,5,7,9,11]
-    note_array = [(note_chord_map[note]+key_constant)%12 for note in base_notes_array]
+    note_array = [(note_chord_map[note]+key_constant)%12 for note in base_note_arr]
     
     # For a minor chord, 3rd note is flat
     # Example in key of C, Dm has F, not F#
-    flat_third = [(note==1 or note==2 or note==5) for note in base_notes_array]
+    flat_third = [(note==1 or note==2 or note==5) for note in base_note_arr]
     
     # Top-line melody
     mel1_wav_name = './mel1.wav'

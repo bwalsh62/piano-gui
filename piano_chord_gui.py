@@ -171,6 +171,11 @@ def play_music():
     note_num4 = chord4_scale.get()
     
     mel_array=np.array([note_num1,note_num2,note_num3,note_num4])
+    
+    # TEST for class eventually
+    #------------------------
+    # play_music_obj = play_music_class(mel_array)
+    # play_music_obj.bpm = bpm
 
     # Get input entry for # of times to repeat
     # Note that loops sets the number of time it will repeat
@@ -192,13 +197,25 @@ def play_music():
             rpt_entry.delete(0, 'end') # this will delete everything inside the entry
             rpt_entry.insert(0, n_repeats)
     
+    # TEST for class eventually
+    #------------------------
+    # play_music_obj.n_repeats = n_repeats
+    
     key_constant = chords_full.index(keyVar.get()) # keyVar.get() = 'D' -> keyConst = 2
+    
+    # TEST for class eventually
+    #------------------------
+    # play_music_obj.key = key
     
     # Eventually have volume constant input from GUI    
 #    # Change volume with this? How does this work?
 #    mixer.music.set_volume
     
-    play_music_func(bpm, n_repeats, mel_array, key_constant, play_chords_sel, play_mel_sel)
+    play_music_func(bpm, mel_array, n_repeats, key_constant, play_chords_sel, play_mel_sel)
+
+    # TEST for class eventually
+    #------------------------
+    # play_music_obj.play()
 
 #%% Define function for recording then transcribing music
 
