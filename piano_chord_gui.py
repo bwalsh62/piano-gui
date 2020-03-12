@@ -53,7 +53,7 @@ from pygame import mixer
 from piano_notes import music_dict, music_theme, freq_dict
 
 # Custom music function for making melody
-from gui_functions import play_music_func, record_music
+from gui_functions import mel_wav_write, record_music
 
 from melody import make_melody
 
@@ -211,7 +211,22 @@ def play_music():
 #    # Change volume with this? How does this work?
 #    mixer.music.set_volume
     
-    play_music_func(bpm, mel_array, n_repeats, key_constant, play_chords_sel, play_mel_sel)
+    mel1_wav, mel2_wav, mel3_wav, hum_mel_wav = mel_wav_write(bpm, 
+        mel_array, key_constant)
+
+    melody1 = mixer.Sound(mel1_wav)
+    melody2 = mixer.Sound(mel2_wav)
+    melody3 = mixer.Sound(mel3_wav)
+    hum_melody = mixer.Sound(hum_mel_wav)
+
+    if play_chords_sel:
+        melody1.play(loops=n_repeats)
+        melody2.play(loops=n_repeats)
+        melody3.play(loops=n_repeats)
+    
+    if play_mel_sel:
+        hum_melody.play(loops=n_repeats)
+
 
     # TEST for class eventually
     #------------------------
