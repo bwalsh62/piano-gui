@@ -17,6 +17,7 @@ for liloquy
 
 from piano_notes import music_theme
 from gui_functions import mel_wav_write
+from text_util import key_dict
 
 # Music player from pygame
 from pygame import mixer
@@ -54,7 +55,9 @@ theme_dict = {
         "cheerful":"cheerful",
         "happy":"cheerful",
         "sad":"somber",
-        "somber":"somber"}
+        "somber":"somber",
+        "pop":"pop",
+        "mainstream":"pop"}
 
 theme_dict_list = list(theme_dict.keys())
 # Define default theme
@@ -91,23 +94,6 @@ default_n_loop = n_loop_dict_list[0]
 
 # KEY
 # ----- 
-# Define dictionary to translate key words into interpreted key
-key_dict = {
-        "in the key of C":"C",
-        "in the key of C major":"C",
-        "in C":"C",
-        "in C major":"C",
-        "in the key of D":"D",
-        "in the key of D major":"D",
-        "in D":"D",
-        "in D major":"D",
-        "in the key of E":"E",
-        "in the key of E major":"E",
-        "in E":"E",
-        "in E major":"E"}
-
-# key value
-# in <key_value>
 
 key_dict_list = list(key_dict.keys())
 # Define default theme
