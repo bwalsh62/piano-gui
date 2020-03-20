@@ -1,1 +1,6 @@
+# Ignore music files
 music_files/
+*.wav
+
+# Ignore pycache 
+__pycache__*
