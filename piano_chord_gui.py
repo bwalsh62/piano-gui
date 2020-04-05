@@ -116,36 +116,35 @@ menu_frame.grid(row=2, sticky="ew")
 
 # Initialize music mixer
 mixer.init()
-               
+            
+#%% Define bpm pre-processing function
+
+def bpm_input_process():
+    # Get input entry for bpm
+    if bpm_entry.get().isdigit():
+        # Setting minimum bpm
+        if int(bpm_entry.get())<min_bpm:
+            print('BPM too low. Using {} for bpm'.format(min_bpm)) 
+            bpm_entry.delete(0, 'end') 
+            bpm_entry.insert(0, min_bpm)
+        # Setting maximum bpm
+        if int(bpm_entry.get())>max_bpm:
+            print('BPM too high. Using {} for bpm'.format(max_bpm))  
+            bpm_entry.delete(0, 'end') 
+            bpm_entry.insert(0, max_bpm)
+        bpm = int(bpm_entry.get())
+    else:
+        bpm = default_bpm
+        print('Invalid entry: {}, using {} for bpm'.format(bpm_entry.get(),bpm))  
+        bpm_entry.delete(0, 'end') # clears entry
+        bpm_entry.insert(0, bpm)
+    return bpm
+   
 #%% Define functions for playing music - hummed melody and/or background chords
 
 def play_music():
     
-    # Get bpm from active tab
-    tab_name = tab_parent.tab(tab_parent.select(), "text")
-    if tab_name == 'Standard':
-        bpm_entry_input = bpm_entry
-    if tab_name == 'Advanced':
-        bpm_entry_input = bpm_entry_adv
-        
-    # Get input entry for bpm
-    if bpm_entry_input.get().isdigit():
-        # Setting minimum bpm
-        if int(bpm_entry_input.get())<min_bpm:
-            print('BPM too low. Using {} for bpm'.format(min_bpm)) 
-            bpm_entry_input.delete(0, 'end') 
-            bpm_entry_input.insert(0, min_bpm)
-        # Setting maximum bpm
-        if int(bpm_entry_input.get())>max_bpm:
-            print('BPM too high. Using {} for bpm'.format(max_bpm))  
-            bpm_entry_input.delete(0, 'end') 
-            bpm_entry_input.insert(0, max_bpm)
-        bpm = int(bpm_entry.get())
-    else:
-        bpm = default_bpm
-        print('Invalid entry: {}, using {} for bpm'.format(bpm_entry_input.get(),bpm))  
-        bpm_entry_input.delete(0, 'end') # clears entry
-        bpm_entry_input.insert(0, bpm)
+    bpm = bpm_input_process()
     
     # Retrieve which melody to play
     #-------------------------------
@@ -180,6 +179,8 @@ def play_music():
     # Get input entry for # of times to repeat
     # Note that loops sets the number of time it will repeat
     #  E.g. to play once, loops=0, to play twice, loops=1 ,etc.
+    
+    tab_name = tab_parent.tab(tab_parent.select(), "text")
     
     if tab_name =='Standard':
         # Hiding repeat number and just loop 'forever' in standard mode
@@ -274,34 +275,7 @@ def record_transcribe_music(note_len_time = 1,rec_notes_total = 3, fs = 44100):
     # Hummed melody
     mel_hum_wav_name = './mel_hum.wav'
     
-    # This should be a modular function since it is used in chords_repeat_func
-    #-------------------------------
-    
-    # Get bpm from active tab
-    tab_name = tab_parent.tab(tab_parent.select(), "text")
-    if tab_name == 'Standard':
-        bpm_entry_input = bpm_entry
-    if tab_name == 'Advanced':
-        bpm_entry_input = bpm_entry_adv
-    
-    # Get input entry for bpm
-    if bpm_entry_input.get().isdigit():
-        # Setting minimum bpm
-        if int(bpm_entry_input.get())<min_bpm:
-            print('BPM too low. Using {} for bpm'.format(min_bpm)) 
-            bpm_entry_input.delete(0, 'end') 
-            bpm_entry_input.insert(0, min_bpm)
-        # Setting maximum bpm
-        if int(bpm_entry_input.get())>max_bpm:
-            print('BPM too high. Using {} for bpm'.format(max_bpm))  
-            bpm_entry_input.delete(0, 'end') 
-            bpm_entry_input.insert(0, max_bpm)
-        bpm = int(bpm_entry.get())
-    else:
-        bpm = default_bpm
-        print('Invalid entry: {}, using {} for bpm'.format(bpm_entry_input.get(),bpm))  
-        bpm_entry_input.delete(0, 'end') # clears entry
-        bpm_entry_input.insert(0, bpm)
+    bpm = bpm_input_process()
         
     mel_hum_wav_name = make_melody(mel_hum_wav_name,predicted_notes,bpm,mode="note_name",debug=0)
 
@@ -417,6 +391,20 @@ record_img = photo.subsample(8)
 record_transcribe_btn = Button(top_frame, width=36,height=36, image=record_img, command=record_transcribe_music)
 record_transcribe_btn.grid(column=2,row=2)
 
+# Record/Instruct
+#------------------
+
+# Picture for record speech command button
+recordSpeechFile = "./icons/RecordSpeechIcon.png"
+photo = PhotoImage(file = recordSpeechFile) 
+# Resizing image to fit on button 
+record_speech_img = photo.subsample(6) 
+
+# Button to record and transcribe
+speech_cmd_btn = Button(top_frame, width=36,height=36, image=record_speech_img, command=record_transcribe_music)
+speech_cmd_btn.grid(column=3,row=2)
+
+
 # Choose playback - background, melody, both
 #--------------------------
 
@@ -433,7 +421,7 @@ musicMixOptions = list(musicMixDict.keys())
 musicMixVar.set(musicMixOptions[0]) # set the default option
 
 chooseMixMenu = OptionMenu(top_frame, musicMixVar, *musicMixOptions)
-chooseMixMenu.grid(column=0, row=3)
+chooseMixMenu.grid(column=0, row=3, columnspan=2)
 
 # Number of repeats
 #------------------
@@ -457,20 +445,17 @@ bpm_lbl2 = Label(advTab, text="BPM:", font=("Arial", 10))#,bg='Blue')
 bpm_lbl2.grid(column=6, row=1, sticky="W")
 
 # BPM Entries
-bpm_entry = Entry(stdTab, width=5)
+bpm_entry = Entry(advTab, width=5)
 bpm_entry.grid(column=7,row=1)
-bpm_entry_adv = Entry(advTab, width=5)
-bpm_entry_adv.grid(column=7,row=1)
 
 # For standard, add +/- buttons for BPM
 bpm_plus_btn = Button(stdTab, text="+", width=3, command=increase_bpm)
-bpm_plus_btn.grid(column=8, row=1)
+bpm_plus_btn.grid(column=7, row=1)
 bpm_minus_btn = Button(stdTab, text="-", width=3, command=decrease_bpm)
-bpm_minus_btn.grid(column=9, row=1)
+bpm_minus_btn.grid(column=8, row=1)
 
 # Initialize Entry with default bpm = 75
 bpm_entry.insert(0,str(default_bpm))
-bpm_entry_adv.insert(0,str(default_bpm))
 
 # Preset themes/chords for Basic/Standard
 #-----------
@@ -483,7 +468,7 @@ themes = ['-Choose-','Cheerful','Somber']
 themeVar.set(themes[0]) # set the default option
 
 chooseThemeMenu = OptionMenu(stdTab, themeVar, *themes,command=update_theme)
-chooseThemeMenu.grid(column=7, row=3, sticky="W")
+chooseThemeMenu.grid(column=7, row=3, columnspan=3, sticky="W")
 
 # Major key
 #-----------
