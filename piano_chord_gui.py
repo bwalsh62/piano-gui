@@ -74,6 +74,8 @@ import matplotlib.pyplot as plt
 
 # Music notes
 chords_full = ('C','C#','D','D#','E','F','F#','G','G#','A','A#','B')
+scale_sharps = ('C','C#','D','D#','E','F','F#','G','G#','A','A#','B')
+scale_flats = ('C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B')
 
 # Constants for beats per minute
 min_bpm = 30
@@ -323,10 +325,16 @@ lbl4.grid(column=4, row=0, sticky="W")
 # Callback to update the value of each slider
 def update_labels(self):
     keyConst = chords_full.index(keyVar.get()) # keyVar.get() = 'D' -> keyConst = 2
-    lbl1.configure(text=chords_full[(keyConst+note_chord_map[chord1_scale.get()])%12]+minor_tag[chord1_scale.get()]) 
-    lbl2.configure(text=chords_full[(keyConst+note_chord_map[chord2_scale.get()])%12]+minor_tag[chord2_scale.get()])
-    lbl3.configure(text=chords_full[(keyConst+note_chord_map[chord3_scale.get()])%12]+minor_tag[chord3_scale.get()])
-    lbl4.configure(text=chords_full[(keyConst+note_chord_map[chord4_scale.get()])%12]+minor_tag[chord4_scale.get()])
+    # Use either scale with sharps or flats
+    if keyVar.get() in ('F',):
+        scale_to_use = scale_flats
+    else:
+        scale_to_use = scale_sharps
+        
+    lbl1.configure(text=scale_to_use[(keyConst+note_chord_map[chord1_scale.get()])%12]+minor_tag[chord1_scale.get()]) 
+    lbl2.configure(text=scale_to_use[(keyConst+note_chord_map[chord2_scale.get()])%12]+minor_tag[chord2_scale.get()])
+    lbl3.configure(text=scale_to_use[(keyConst+note_chord_map[chord3_scale.get()])%12]+minor_tag[chord3_scale.get()])
+    lbl4.configure(text=scale_to_use[(keyConst+note_chord_map[chord4_scale.get()])%12]+minor_tag[chord4_scale.get()])
 
 # Callback to update the value of each slider for a theme preset of chords
 def update_theme(self):
