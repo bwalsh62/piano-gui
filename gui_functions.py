@@ -83,10 +83,10 @@ def record_timer_viz(note_len_time=1,rec_notes_total=1):
 
 import sounddevice as sd
 
-def record_music(rec_notes_total, note_len_time, fs):
+def record_music(rec_notes_total, note_len_time, fs=44.1e3):
     
     # Samples in a note = the samples/second * time   
-    note_len_n_samples = fs * note_len_time
+    note_len_n_samples = int(fs * note_len_time)
     
     # Record for data points = number of notes * data points / note
     recorded_sound = sd.rec(rec_notes_total*note_len_n_samples, samplerate=fs, channels=2)
