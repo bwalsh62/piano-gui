@@ -140,14 +140,17 @@ class music_theme:
         default_theme = 'pop'
         
         if self.theme == 'somber':
-            self.chords = [5,1,2,5]
+            self.chords = [5,1,2,5] # Am Dm Em Am
             self.bpm = 55
         elif self.theme == 'cheerful':
-            self.chords = [0,3,4,0]
+            self.chords = [0,3,4,0] # C F G C
             self.bpm = 75
         elif self.theme == 'pop':
-            self.chords = [0,4,5,3]
+            self.chords = [0,4,5,3] # C G Am F
             self.bpm = 70
+        elif self.theme == 'hip-hop':
+            self.chords = [5,5,3,3] # Am Am F F
+            self.bpm = 64
         else:
             print('Unknown input theme {}\nSetting to default {}'.format(self.theme,default_theme)) 
             self.theme = default_theme

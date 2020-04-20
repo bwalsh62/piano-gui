@@ -38,7 +38,7 @@ TO DO
 #%% Import libraries
 
 # GUI with tkinter
-from tkinter import Tk, Label, Button, Scale, Frame, Entry, PhotoImage, ttk, OptionMenu, StringVar
+from tkinter import Tk, Label, Button, Scale, Frame, Entry, PhotoImage, ttk, OptionMenu, Checkbutton, StringVar, IntVar
 
 # Numerical processing with numpy
 import numpy as np
@@ -146,6 +146,21 @@ def play_music():
     
     bpm = bpm_input_process()
     
+    # Eventually make bpm adjust percussion directly
+    
+    hip_hop_beat_bpm_128 = r"C:\Users\benja\Music\Cymatics-HipHopStarterPack\Drums-Loops\Loops-Full\Hip-HopDrumLoop1-128BPM.wav"
+
+    hip_hop_beat_bpm_100 = r"C:\Users\benja\Music\Cymatics-HipHopStarterPack\Drums-Loops\Loops-Full\Hip-HopDrumLoop1-100BPM.wav"
+
+    if bpm == 100 or bpm == 50:
+        hip_hop_beat = hip_hop_beat_bpm_100
+    elif bpm == 128 or bpm == 64:
+        hip_hop_beat = hip_hop_beat_bpm_128
+    else:
+        hip_hop_beat = hip_hop_beat_bpm_100
+
+    beats = mixer.Sound(hip_hop_beat)
+    
     # Retrieve which melody to play
     #-------------------------------
     
@@ -228,6 +243,8 @@ def play_music():
     if play_mel_sel:
         hum_melody.play(loops=n_repeats)
 
+    if beats_on.get():
+        beats.play(loops=n_repeats)
 
     # TEST for class eventually
     #------------------------
@@ -405,16 +422,17 @@ speech_cmd_btn = Button(top_frame, width=36,height=36, image=record_speech_img, 
 speech_cmd_btn.grid(column=3,row=2)
 
 
-# Choose playback - background, melody, both
+# Choose playback - background, melody, percussion, any combination
 #--------------------------
 
 # Define list with music mixing options
 musicMixVar = StringVar(root)
 
 musicMixDict = dict(
-        {'Both':(1,1),
-         'Background Only':(1,0),
-         'Melody Only':(0,1)
+        {'Background Only':(1,0,0),
+         'Melody Only':(0,1,0),
+         'Background and Percussion':(1,0,1),
+         'Background and Melody':(1,1,0)
         })
     
 musicMixOptions = list(musicMixDict.keys())
@@ -422,6 +440,10 @@ musicMixVar.set(musicMixOptions[0]) # set the default option
 
 chooseMixMenu = OptionMenu(top_frame, musicMixVar, *musicMixOptions)
 chooseMixMenu.grid(column=0, row=3, columnspan=2)
+
+# Percussion 
+beats_on = IntVar()
+beats_on_btn = Checkbutton(top_frame, text="beats", variable=beats_on).grid(row=3, column=2, sticky='W')
 
 # Number of repeats
 #------------------
@@ -464,7 +486,7 @@ theme_lbl.grid(column=6, row=3, sticky="W")
 
 # Define list with keys
 themeVar = StringVar(root)
-themes = ['-Choose-','Cheerful','Somber']
+themes = ['-Choose-','Pop','Hip-Hop','Cheerful','Somber']
 themeVar.set(themes[0]) # set the default option
 
 chooseThemeMenu = OptionMenu(stdTab, themeVar, *themes,command=update_theme)
