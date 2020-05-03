@@ -14,17 +14,11 @@ for liloquy
 
 TO DO
 ----
-- ml_utils integrate with submodule for feat_extract
 - generalize location of pickle model
-
+- get ml_utils working through note_recognition submodule
 - Adjust volume so background music is softer
 -- Eventually have slider for adjustable volumes
 - PyInstaller for application
-- Operationalize Record/Liloquy button 
-    X Record 3 seconds and save
-    X Estimate note
-    X Play back note in piano
-    - Play on top of background melody
 - Add string instrument for keyboard
 - Script to redefine sound_C etc when instrument changes 
 
@@ -53,7 +47,8 @@ from pygame import mixer
 from piano_notes import music_dict, music_theme, freq_dict
 
 # Custom music function for making melody
-from gui_functions import mel_wav_write, record_music
+from gui_functions import mel_wav_write, record_music #, bpm_input_process
+# from gui_util
 
 from melody import make_melody
 
@@ -72,20 +67,19 @@ import matplotlib.pyplot as plt
 
 #%% Define constants
 
-# Music notes
-chords_full = ('C','C#','D','D#','E','F','F#','G','G#','A','A#','B')
-scale_sharps = ('C','C#','D','D#','E','F','F#','G','G#','A','A#','B')
-scale_flats = ('C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B')
+# Define tuple with full scale
+SCALE_SHARPS = ('C','C#','D','D#','E','F','F#','G','G#','A','A#','B')
+SCALE_FLATS = ('C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B')
 
-# Constants for beats per minute
-min_bpm = 30
-max_bpm = 120
-default_bpm = 75
+# Define limits for beats per minute
+MIN_BPM = 30
+MAX_BPM = 120
+DEFAULT_BPM = 75
 
 #%% Initialize GUI
 
 root = Tk()
-root.title('liloquy - find your song')
+root.title('elly - find your song')
 root.geometry('{}x{}'.format(325, 515))
 
 # Create main frame containers
@@ -116,37 +110,48 @@ top_frame.grid(row=0, sticky="ew")
 piano_frame.grid(row=1, sticky="ew")
 menu_frame.grid(row=2, sticky="ew")
 
-# Initialize music mixer
+#%% Initialize music mixer
+
 mixer.init()
             
 #%% Define bpm pre-processing function
 
-def bpm_input_process():
+def bpm_input_process(beats_on=False):
     # Get input entry for bpm
     if bpm_entry.get().isdigit():
         # Setting minimum bpm
-        if int(bpm_entry.get())<min_bpm:
-            print('BPM too low. Using {} for bpm'.format(min_bpm)) 
+        if int(bpm_entry.get())<MIN_BPM:
+            print('BPM too low. Using {} for bpm'.format(MIN_BPM)) 
             bpm_entry.delete(0, 'end') 
-            bpm_entry.insert(0, min_bpm)
+            bpm_entry.insert(0, MIN_BPM)
         # Setting maximum bpm
-        if int(bpm_entry.get())>max_bpm:
-            print('BPM too high. Using {} for bpm'.format(max_bpm))  
+        if int(bpm_entry.get())>MAX_BPM:
+            print('BPM too high. Using {} for bpm'.format(MAX_BPM))  
             bpm_entry.delete(0, 'end') 
-            bpm_entry.insert(0, max_bpm)
+            bpm_entry.insert(0, MAX_BPM)
         bpm = int(bpm_entry.get())
     else:
-        bpm = default_bpm
+        bpm = DEFAULT_BPM
         print('Invalid entry: {}, using {} for bpm'.format(bpm_entry.get(),bpm))  
         bpm_entry.delete(0, 'end') # clears entry
         bpm_entry.insert(0, bpm)
+    
+    # Until percussion can be changed on the fly, must change to 50 or 64
+    if beats_on:
+        beats_valid = [50,64]
+        closest_beat = beats_valid[np.argmin(abs(np.array(beats_valid)-bpm))]
+        print('Valid BPM values = {}, using {} for bpm'.format(beats_valid,closest_beat))  
+        bpm = closest_beat  
+        bpm_entry.delete(0, 'end') # clears entry
+        bpm_entry.insert(0, bpm)
+    
     return bpm
    
 #%% Define functions for playing music - hummed melody and/or background chords
 
 def play_music():
     
-    bpm = bpm_input_process()
+    bpm = bpm_input_process(beats_on = beats_on.get())
     
     # Eventually make bpm adjust percussion directly
     
@@ -219,7 +224,7 @@ def play_music():
     #------------------------
     # play_music_obj.n_repeats = n_repeats
     
-    key_constant = chords_full.index(keyVar.get()) # keyVar.get() = 'D' -> keyConst = 2
+    key_constant = SCALE_SHARPS.index(keyVar.get()) # keyVar.get() = 'D' -> keyConst = 2
     
     # TEST for class eventually
     #------------------------
@@ -324,12 +329,12 @@ lbl4.grid(column=4, row=0, sticky="W")
 
 # Callback to update the value of each slider
 def update_labels(self):
-    keyConst = chords_full.index(keyVar.get()) # keyVar.get() = 'D' -> keyConst = 2
+    keyConst = SCALE_SHARPS.index(keyVar.get()) # keyVar.get() = 'D' -> keyConst = 2
     # Use either scale with sharps or flats
     if keyVar.get() in ('F',):
-        scale_to_use = scale_flats
+        scale_to_use = SCALE_FLATS
     else:
-        scale_to_use = scale_sharps
+        scale_to_use = SCALE_SHARPS
         
     lbl1.configure(text=scale_to_use[(keyConst+note_chord_map[chord1_scale.get()])%12]+minor_tag[chord1_scale.get()]) 
     lbl2.configure(text=scale_to_use[(keyConst+note_chord_map[chord2_scale.get()])%12]+minor_tag[chord2_scale.get()])
@@ -351,12 +356,12 @@ def update_theme(self):
 
 # Callback to increase bpm with + sign
 def increase_bpm():
-    bpm_to_insert = min(int(bpm_entry.get())+5,max_bpm)
+    bpm_to_insert = min(int(bpm_entry.get())+5,MAX_BPM)
     bpm_entry.delete(0, 'end') 
     bpm_entry.insert(0, bpm_to_insert)
 
 def decrease_bpm():
-    bpm_to_insert = max(int(bpm_entry.get())-5,min_bpm)
+    bpm_to_insert = max(int(bpm_entry.get())-5,MIN_BPM)
     bpm_entry.delete(0, 'end') 
     bpm_entry.insert(0, bpm_to_insert)
 
@@ -485,7 +490,7 @@ bpm_minus_btn = Button(stdTab, text="-", width=3, command=decrease_bpm)
 bpm_minus_btn.grid(column=8, row=1)
 
 # Initialize Entry with default bpm = 75
-bpm_entry.insert(0,str(default_bpm))
+bpm_entry.insert(0,str(DEFAULT_BPM))
 
 # Preset themes/chords for Basic/Standard
 #-----------
