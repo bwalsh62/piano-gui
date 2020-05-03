@@ -14,17 +14,11 @@ for liloquy
 
 TO DO
 ----
-- ml_utils integrate with submodule for feat_extract
 - generalize location of pickle model
-
+- get ml_utils working through note_recognition submodule
 - Adjust volume so background music is softer
 -- Eventually have slider for adjustable volumes
 - PyInstaller for application
-- Operationalize Record/Liloquy button 
-    X Record 3 seconds and save
-    X Estimate note
-    X Play back note in piano
-    - Play on top of background melody
 - Add string instrument for keyboard
 - Script to redefine sound_C etc when instrument changes 
 
