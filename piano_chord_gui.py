@@ -151,7 +151,9 @@ def bpm_input_process(beats_on=False):
 
 def play_music():
     
-    bpm = bpm_input_process(beats_on = beats_on.get())
+    debug = 0
+    
+    bpm = bpm_input_process(beats_on=beats_on.get())
     
     # Eventually make bpm adjust percussion directly
     
@@ -183,7 +185,7 @@ def play_music():
         print('No playback selected or unknown option')
     else:
         play_chords_sel, play_mel_sel = musicMixDict[music_mix_sel]
-        print('Playing chords = {}, playing melody = {}'.format(play_chords_sel,play_mel_sel))
+        print('Playing chords = {}, playing melody = {}'.format(play_chords_sel, play_mel_sel))
     
     # Base chords
     note_num1 = chord1_scale.get()   
@@ -191,7 +193,13 @@ def play_music():
     note_num3 = chord3_scale.get()   
     note_num4 = chord4_scale.get()
     
-    mel_array=np.array([note_num1,note_num2,note_num3,note_num4])
+    # Retrieve how many times to repeat each chord from user input
+    notes_per_chord = int(notes_per_chord_entry.get())
+    
+    # Build chord list
+    chords = [note_num1]*notes_per_chord+[note_num2]*notes_per_chord+[note_num3]*notes_per_chord+[note_num4]*notes_per_chord
+    if debug:
+        print('chords = {}'.format(chords))
     
     # TEST for class eventually
     #------------------------
@@ -215,7 +223,7 @@ def play_music():
             else:
                 n_repeats = int(rpt_entry.get())-1
         else:
-            n_repeats=0
+            n_repeats = 0
             print('Invalid entry: '+rpt_entry.get()+', using '+str(n_repeats)+' for # loops')    
             rpt_entry.delete(0, 'end') # this will delete everything inside the entry
             rpt_entry.insert(0, n_repeats)
@@ -235,7 +243,7 @@ def play_music():
 #    mixer.music.set_volume
     
     mel1_wav, mel2_wav, mel3_wav, hum_mel_wav = mel_wav_write(bpm, 
-        mel_array, key_constant)
+        chords, key_constant, note_repeats=notes_per_chord, debug=debug)
 
     melody1 = mixer.Sound(mel1_wav)
     melody2 = mixer.Sound(mel2_wav)
@@ -471,6 +479,17 @@ rpt_entry.grid(column=7,row=3)
 # Initialize Entry with default loops = 2 
 rpt_entry.insert(0,'2')
 
+# Notes/measure Label
+notes_per_chord_lbl = Label(advTab, text="Notes/Meas:", font=("Arial", 10))
+notes_per_chord_lbl.grid(column=6, row=4, sticky="W")
+
+# Notes/measure Entry
+notes_per_chord_entry = Entry(advTab, width=5)
+notes_per_chord_entry.grid(column=7,row=4)
+
+# Initialize Entry with default loops = 2 
+notes_per_chord_entry.insert(0,'2')
+
 # Tempo in BPM
 #-----------------
 # BPM Label
@@ -499,7 +518,7 @@ theme_lbl.grid(column=6, row=3, sticky="W")
 
 # Define list with keys
 themeVar = StringVar(root)
-themes = ['-Choose-','Pop','Hip-Hop','Cheerful','Somber']
+themes = ('Pop','Hip-Hop','Cheerful','Somber')
 themeVar.set(themes[0]) # set the default option
 
 chooseThemeMenu = OptionMenu(stdTab, themeVar, *themes,command=update_theme)

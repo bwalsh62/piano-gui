@@ -30,10 +30,9 @@ from wav_utils import wav_file_append, wav_file_clip
 
 #%% Make melody wav file from input notes
 
-def make_melody(mel_wav_name,note_array,bpm=60,mode="note_idx",vol_const=1,debug=0):
+def make_melody(mel_wav_name,note_array,bpm=60,mode="note_idx",vol_const=1,note_repeats=1,debug=0):
         
     t_len = 60/bpm # time in seconds
-    note_repeats = 2 # assume 2 for now, can be input or based on bpm and 4/4
     
     if debug:
         print('Make melody, mode={}'.format(mode))
@@ -58,10 +57,11 @@ def make_melody(mel_wav_name,note_array,bpm=60,mode="note_idx",vol_const=1,debug
             for repeat in range(1):
                 # Repeat note
                 # This should be to a new note, not overwriting the same note 
-                wav_file_append(note_wav_file,note_wav_file,note_wav_file)
+                wav_file_append(note_wav_file, note_wav_file, note_wav_file)
             if idx==0:
                 # Initalize melody name
-                mel_wav_name = wav_file_clip(t_len*note_repeats,note_wav_file,mel_wav_name)
+                mel_wav_name = wav_file_clip(t_len, note_wav_file, mel_wav_name)
+
             elif idx>0:
                 wav_file_append(mel_wav_name,note_wav_file,mel_wav_name)
     elif mode=="note_idx": 
@@ -81,9 +81,11 @@ def make_melody(mel_wav_name,note_array,bpm=60,mode="note_idx",vol_const=1,debug
                 wav_file_append(note_wav_file,note_wav_file,note_wav_file)
             if idx==0:
                 # Initalize melody name
-                mel_wav_name = wav_file_clip(t_len*note_repeats,note_wav_file,mel_wav_name)
+                mel_wav_name = wav_file_clip(t_len,note_wav_file,mel_wav_name)
             elif idx>0:
-                wav_file_append(mel_wav_name,note_wav_file,mel_wav_name)
+                new_note_wav_name = './note{}.wav'.format(idx+1)
+                new_note_wav_file = wav_file_clip(t_len, note_wav_file, new_note_wav_name)
+                wav_file_append(mel_wav_name, new_note_wav_file, mel_wav_name)
     else:
         print("Mode {} for melody.py not recognized".format(mode))
     
