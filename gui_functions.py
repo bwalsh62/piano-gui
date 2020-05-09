@@ -27,25 +27,27 @@ from melody import make_melody
 # Callback when pressing Play on GUI
 #
 
-def mel_wav_write(bpm, base_note_arr, key_constant=0):
+def mel_wav_write(bpm, base_note_arr, key_constant=0, note_repeats=1, debug=0):
     
     # Convert from 0=C, 1=D, 2=E, 3=F... to 0=C, 2=D, 4=E, 5=F, ...
-    note_chord_map = [0,2,4,5,7,9,11]
+    note_chord_map = [0, 2, 4, 5, 7, 9, 11]
     note_array = [(note_chord_map[note]+key_constant)%12 for note in base_note_arr]
     
     # For a minor chord, 3rd note is flat
     # Example in key of C, Dm has F, not F#
     flat_third = [(note==1 or note==2 or note==5) for note in base_note_arr]
-    
+        
     # Top-line melody
     mel1_wav_name = './mel1.wav'
-    mel1_wav_name = make_melody(mel1_wav_name,note_array,bpm,debug=0)
+    mel1_wav_name = make_melody(mel1_wav_name, note_array, bpm, 
+                                note_repeats=note_repeats, debug=debug)
 
     mel2_wav_name = './mel2.wav'
-    mel2_wav_name = make_melody(mel2_wav_name,[(note+4-flat_third[idx])%12 for idx,note in enumerate(note_array)],bpm)
+    mel2_wav_name = make_melody(mel2_wav_name,[(note+4-flat_third[idx])%12 for idx, note in enumerate(note_array)], 
+                                               bpm, note_repeats=note_repeats, debug=debug)
 
     mel3_wav_name = './mel3.wav'
-    mel3_wav_name = make_melody(mel3_wav_name,[(idx+7)%12 for idx in note_array],bpm)
+    mel3_wav_name = make_melody(mel3_wav_name,[(idx+7)%12 for idx in note_array], bpm, note_repeats=note_repeats, debug=debug)
 
     # Should be input argument or defined from common location
     hum_mel_wav_name = './mel_hum.wav'
@@ -56,7 +58,7 @@ def mel_wav_write(bpm, base_note_arr, key_constant=0):
 
 import time
 
-def record_timer_viz(note_len_time=1,rec_notes_total=1):
+def record_timer_viz(note_len_time=1, rec_notes_total=1):
     
     start_time = time.time()
     
