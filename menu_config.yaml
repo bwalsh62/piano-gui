@@ -1,0 +1,13 @@
+# config.yaml file
+#
+# GUI and Button layout for simple_gui.py
+#
+# Prototype GUI for Liloquy
+# Copyright Benjamin Walsh 2020
+
+play:
+  width: 60
+  height: 60
+  grid_col: 0
+  grid_row: 0
+  img_file: "./icons/PlayIcon.png"
