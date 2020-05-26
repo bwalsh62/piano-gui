@@ -5,9 +5,27 @@
 # Prototype GUI for Liloquy
 # Copyright Benjamin Walsh 2020
 
+screen_height: 500
+screen_width: 300
+menu_height: 100
+
+mixer:
+  width: 256
+  height: 120
+  grid_col: 0
+  grid_row: 0
+  img_file: "./icons/mixer_placeholder.png"
+  
+drums:
+  width: 60
+  height: 60
+  grid_col: 0
+  grid_row: 1
+  img_file: "./icons/drums_icon.png"
+
 play:
   width: 60
   height: 60
   grid_col: 0
-  grid_row: 0
+  grid_row: 2
   img_file: "./icons/PlayIcon.png"

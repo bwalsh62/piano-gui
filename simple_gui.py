@@ -18,9 +18,12 @@ import os
 import yaml
 from pygame import mixer
 
-from gui_functions import mel_wav_write
+from gui_functions import mel_wav_write2
+# Should be...
 #from melody import mel_wav_write
 #from wav_util import wav_write_melody
+# Or could be...
+# from music_functions import play_music_lite
 
 #%% Define constants
 
@@ -28,18 +31,21 @@ SCREEN_WIDTH = 300
 SCREEN_HEIGHT = 500
 MENU_HEIGHT = 100
 
-MENU_CONFIG = 'config.yaml'
+MENU_CONFIG_FILE = 'menu_config.yaml'
+
+with open(MENU_CONFIG_FILE) as file:
+    menu_cfg = yaml.load(file, Loader=yaml.FullLoader)
 
 #%% Initialize GUI
 
 main = Tk()
 main.title('liloquy - find your song')
-main.geometry('{}x{}'.format(300, SCREEN_HEIGHT))
+main.geometry('{}x{}'.format(300, menu_cfg['screen_height']))
 
 # Create main frame containers
 
-main_frame = Frame(main, bg='brown', width=SCREEN_WIDTH, height=SCREEN_HEIGHT-MENU_HEIGHT, pady=166, padx=116)
-menu_frame = Frame(main, bg='gray', width=SCREEN_WIDTH, height=MENU_HEIGHT, padx=2, pady=2)
+main_frame = Frame(main, bg='brown', width=menu_cfg['screen_width'], height=menu_cfg['screen_height']-MENU_HEIGHT, pady=30, padx=18)
+menu_frame = Frame(main, bg='gray', width=menu_cfg['screen_width'], height=menu_cfg['menu_height'], padx=2, pady=2)
 
 # layout main containers
 main.grid_rowconfigure(1, weight=1)
@@ -48,42 +54,84 @@ main.grid_columnconfigure(0, weight=1)
 main_frame.grid(row=0)
 menu_frame.grid(row=1, sticky="ew")
 
-#%% Play_music_lite - eventually import
+#%% Play_music_lite - eventually import?
 
-def play_music_lite(bpm=64, chords=[0 ,0, 4, 4, 5, 5, 3, 3], n_plays=1):
+def play_music_lite(bpm=64, chords=[0, 0, 4, 4, 5, 5, 3, 3], n_plays=1, chord_len=3):
 
-    mel1_wav, mel2_wav, mel3_wav, hum_mel_wav = mel_wav_write(bpm, chords)
+    # Eventually reference in modular location
+    hip_hop_beat = r"C:\Users\benja\Music\Cymatics-HipHopStarterPack\Drums-Loops\Loops-Full\Hip-HopDrumLoop1-128BPM.wav"
+    beats = mixer.Sound(hip_hop_beat)
     
-    melody1 = mixer.Sound(mel1_wav)
-    melody2 = mixer.Sound(mel2_wav)
-    melody3 = mixer.Sound(mel3_wav)
+    melody_wav_files = mel_wav_write2(bpm, chords, chord_len=3)
     
-    melody1.play(loops=n_plays-1)
-    melody2.play(loops=n_plays-1)
-    melody3.play(loops=n_plays-1)
+    for melody in melody_wav_files:
+        mixer.Sound(melody).play(loops=n_plays-1)
+        
+    if beats_on.get():
+        beats.play(loops=n_plays-1)
+        
+#%% Toggle beats_on - eventually import?
+
+# Define list with music mixing options
+beats_on = IntVar(main, name="beats_on")
+main.setvar(name="beats_on", value = 0)
+
+def toggle_beats_on():
+    main.setvar(name="beats_on", value=not(beats_on.get()))
+
+#%% Music mixer
+
+# Picture for mixer
+mix_img_file = menu_cfg['mixer']['img_file']
+if not(os.path.exists(mix_img_file)):
+    print(f'Cannot find: {mix_img_file}')
+ 
+# Resizing image to fit on button 
+mixer_img = PhotoImage(file=mix_img_file).subsample(4) 
+
+mixer_btn = Button(main_frame, \
+                        width=menu_cfg['mixer']['width'], \
+                        height=menu_cfg['mixer']['height'], \
+                        text="Play", image=mixer_img, command=play_music_lite)
+
+mixer_btn.grid(column=menu_cfg['mixer']['grid_col'], \
+                    row=menu_cfg['mixer']['grid_row'], pady=10)
+
+#%% Drums button
+
+# Picture for drums
+drums_img_file = menu_cfg['drums']['img_file']
+if not(os.path.exists(drums_img_file)):
+    print(f'Cannot find: {drums_img_file}')
+ 
+# Resizing image to fit on button 
+drums_img = PhotoImage(file=drums_img_file).subsample(2) 
+
+drums_btn = Button(main_frame, \
+                        width=menu_cfg['drums']['width'], \
+                        height=menu_cfg['drums']['height'], \
+                        text="Play", image=drums_img, command=toggle_beats_on)
+
+drums_btn.grid(column=menu_cfg['drums']['grid_col'], \
+                    row=menu_cfg['drums']['grid_row'], pady=4)
 
 #%% Play button
 
-with open(MENU_CONFIG) as file:
-    btn_cfg = yaml.load(file, Loader=yaml.FullLoader)
-
 # Picture for play button
-play_img_file = btn_cfg['play']['img_file']
+play_img_file = menu_cfg['play']['img_file']
 if not(os.path.exists(play_img_file)):
     print(f'Cannot find: {play_img_file}')
-    
-photo = PhotoImage(file=play_img_file)
- 
+     
 # Resizing image to fit on button 
-play_img = photo.subsample(4) 
+play_img = PhotoImage(file=play_img_file).subsample(4) 
 
 play_music_btn = Button(main_frame, \
-                        width=btn_cfg['play']['width'], \
-                        height=btn_cfg['play']['height'], \
+                        width=menu_cfg['play']['width'], \
+                        height=menu_cfg['play']['height'], \
                         text="Play", image=play_img, command=play_music_lite)
 
-play_music_btn.grid(column=btn_cfg['play']['grid_col'], \
-                    row=btn_cfg['play']['grid_row'])
+play_music_btn.grid(column=menu_cfg['play']['grid_col'], \
+                    row=menu_cfg['play']['grid_row'], pady=30)
 
 #%% Run GUI
 
