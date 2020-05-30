@@ -24,8 +24,15 @@ drums:
   img_file: "./icons/drums_icon.png"
 
 play:
-  width: 60
-  height: 60
+  width: 56
+  height: 56
   grid_col: 0
   grid_row: 2
   img_file: "./icons/PlayIcon.png"
+  
+rec:
+  width: 52
+  height: 52
+  grid_col: 0
+  grid_row: 3
+  img_file: "./icons/RecordIcon.png"
