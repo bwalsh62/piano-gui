@@ -71,7 +71,7 @@ def play_music_lite(bpm=64, chords=[0, 0, 4, 4, 5, 5, 3, 3], n_plays=1, chord_le
     
     # Write wav files for background music
     melody_wav_files = mel_wav_write2(bpm, chords, chord_len=3)
-    
+       
     for melody in melody_wav_files:
         mixer.Sound(melody).play(loops=n_plays-1)
         
@@ -204,6 +204,25 @@ rec_music_btn = Button(main_frame, \
 
 rec_music_btn.grid(column=menu_cfg['rec']['grid_col'], \
                     row=menu_cfg['rec']['grid_row'], columnspan=2, pady=2)
+
+#%% Transcribe button
+
+# Picture for transcribe button
+transcr_img_file = menu_cfg['transcr']['img_file']
+if not(os.path.exists(transcr_img_file)):
+    print(f'Cannot find: {transcr_img_file}')
+     
+# Resizing image to fit on button 
+transcr_img = PhotoImage(file=transcr_img_file).subsample(4) 
+
+transcr_music_btn = Button(main_frame, \
+                        width=menu_cfg['transcr']['width'], \
+                        height=menu_cfg['transcr']['height'], \
+                        text="Voice2Piano", image=transcr_img, command=record_sound_lite)
+
+# Until put in menu_cfg
+transcr_music_btn.grid(column=menu_cfg['transcr']['grid_col'], \
+                    row=menu_cfg['transcr']['grid_row'], columnspan=2, pady=2)
 
 #%% Run GUI
 

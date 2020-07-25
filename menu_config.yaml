@@ -36,3 +36,10 @@ rec:
   grid_col: 0
   grid_row: 3
   img_file: "./icons/RecordIcon.png"
+
+transcr:
+  width: 52
+  height: 52
+  grid_col: 1
+  grid_row: 3
+  img_file: "./icons/Voice2PianoIcon.png"
