@@ -14,7 +14,7 @@ import numpy as np
 
 #%%
 
-def music_feat_extract(data, fs, freq_dict):
+def music_feat_ext(data, fs, freq_dict, feat_notes):
     
     # Find index corresponding to each note of interest
     # For now just take note of C, D and E
@@ -24,15 +24,13 @@ def music_feat_extract(data, fs, freq_dict):
     t_period = tp_count/fs
     freqs = vals/t_period
     
-    feat_notes = ['C3', 'D3', 'E3', 'F3', 'G3', 'A3']
     center_indices = []
     
     for feat_note in feat_notes:
-#        center_indices.append(abs(freqs-freq_dict(feat_note).freq).argmin())
         center_indices.append(abs(freqs-freq_dict[feat_note]).argmin())
-
+    
     # Window width to extract power around center frequencies
-    window_width = 3
+    window_width = 2
     
     # Extract features
     
@@ -54,3 +52,21 @@ def music_feat_extract(data, fs, freq_dict):
             
     # Return features   
     return features
+
+#%%
+    
+class hum_signal:
+    
+    def __init__(self, note = 'C4'):        
+        self.note = note 
+        fs, signal = wav.read(hum_dict[note])
+        self.fs = fs
+        self.signal = signal
+        self.wav_file = hum_dict[note]
+
+class hum_signals(hum_signal):
+    
+    def __init__(self, notes = ('C4','D4','E4','F4','G4','A4')):        
+        self.hums = dict()
+        for note in notes:
+            self.hums[note] = hum_signal(note)

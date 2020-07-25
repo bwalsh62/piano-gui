@@ -13,13 +13,18 @@ Copyright 2020 Benjamin Walsh
 
 #%% Import libraries
 
-from tkinter import Tk, Label, Button, Frame, Entry, PhotoImage, ttk, OptionMenu, Checkbutton, StringVar, IntVar
+from tkinter import Tk, Button, Frame, PhotoImage, IntVar
 import os
+import sys
 import time
 import yaml
+import pickle
+import numpy as np
+
 from pygame import mixer
 import sounddevice as sd
 from scipy.io.wavfile import write
+from scipy.io import wavfile as wav
 
 from gui_functions import mel_wav_write2
 # Should be...
@@ -27,6 +32,14 @@ from gui_functions import mel_wav_write2
 #from wav_util import wav_write_melody
 # Or could be...
 # from music_functions import play_music_lite
+
+# Add custom modules to path
+module_path = os.path.abspath(os.path.join('.'))
+if module_path not in sys.path:
+    sys.path.append(module_path)
+
+from ml_utils import music_feat_ext
+from piano_notes import freq_dict, note_class
 
 #%% Define constants
 
@@ -41,6 +54,7 @@ with open(MENU_CONFIG_FILE) as file:
 
 BEATS_FILE_NAME = r"C:\Users\benja\Music\Cymatics-HipHopStarterPack\Drums-Loops\Loops-Full\Hip-HopDrumLoop1-128BPM.wav"
 REC_FILE_NAME = "./record_sound.wav"
+TRANSCR_FILE_NAME = "./record_sound_4piano.wav"
 
 #%% Initialize GUI
 
@@ -96,7 +110,46 @@ def record_sound_lite(rec_notes_total=2, note_len_time=2, fs=44100):
     write(REC_FILE_NAME, fs, rec_sound)
     
     return rec_sound
+
+#%% Transcribe music to piano - eventually import?
+
+model_folder = r".\note-recognition"
+model_name = "model.sav"
+# Should be... model_folder = r".\note-recognition\trained_models"
+model = pickle.load(open(os.path.join(model_folder, model_name), 'rb')) 
+feat_notes = ('C3', 'D3', 'E3', 'F3', 'G3', 'A3')
+
+# WARNING
+# SVC from version 0.21.3 when using version 0.20.3
+
+def voice2piano_lite(rec_notes_total=1, note_len_time=3, fs=44100):
     
+    # Samples in a note = the samples/second * time   
+    note_len_n_samples = int(fs * note_len_time)
+    
+    # Record the sound
+    rec_sound = sd.rec(rec_notes_total*note_len_n_samples, samplerate=fs, channels=2, dtype='int16')
+    
+    # Pause while recording
+    time.sleep(rec_notes_total*note_len_n_samples/fs)
+    
+    # Create wav of recording
+    write(TRANSCR_FILE_NAME, fs, rec_sound)
+    
+    fs_in, wav_sig_in = wav.read(TRANSCR_FILE_NAME)
+    hum_len = 130000
+    hums = np.empty((1,hum_len))
+    hums[0,:] = wav_sig_in[:hum_len,1]
+    
+    X_feat = music_feat_ext(hums,fs_in,freq_dict,feat_notes)
+    
+    predicted_notes = model.predict(X_feat)
+    for note in predicted_notes:
+        print(f"Predicted note: {note}")
+    note_predict = note_class(note=predicted_notes[0])
+    note_predict.sound.play(1)
+    
+
 #%% Toggle beats_on - eventually import?
 
 # Declare variable to track whether to play the beat
@@ -218,7 +271,7 @@ transcr_img = PhotoImage(file=transcr_img_file).subsample(4)
 transcr_music_btn = Button(main_frame, \
                         width=menu_cfg['transcr']['width'], \
                         height=menu_cfg['transcr']['height'], \
-                        text="Voice2Piano", image=transcr_img, command=record_sound_lite)
+                        text="Voice2Piano", image=transcr_img, command=voice2piano_lite)
 
 # Until put in menu_cfg
 transcr_music_btn.grid(column=menu_cfg['transcr']['grid_col'], \

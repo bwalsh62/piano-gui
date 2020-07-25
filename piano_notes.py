@@ -2,84 +2,114 @@
 """
 Created on Mon Aug  5 20:56:26 2019
 
-@author: benja
+@author: Ben Walsh
+
+For Elly
+
+Copyright 2020
 
 Music from: http://theremin.music.uiowa.edu/MISpiano.html
 
-# TO DO
-# - Try as a class
-
 """
+
+#%% Import pygame library
+
 from pygame import mixer
-#from os import getcwd
 
 mixer.init()
 
-# Paths to piano wav files
+#%% Paths to piano wav files
+
 music_fpath = "./music_files/piano/"
-C_path = music_fpath+"Piano.mf.C4_2p4s.wav"
+C3_path = f"{music_fpath}Piano.mf.C3_3s.wav"
+D3_path = music_fpath+"Piano.mf.D3_3s.wav"
+E3_path = music_fpath+"Piano.mf.E3_3s.wav"
+F3_path = music_fpath+"Piano.mf.F3_3s.wav"
+G3_path = music_fpath+"Piano.mf.G3_3s.wav"
+A3_path = music_fpath+"Piano.mf.A3_3s.wav"
+B3_path = music_fpath+"Piano.mf.B3_3s.wav"
+
+C4_path = music_fpath+"Piano.mf.C4_2p4s.wav"
 Csharp_path = music_fpath+"Piano.mf.Db4_2p5s.wav"
-D_path = music_fpath+"Piano.mf.D4_2p4s.wav"
+D4_path = music_fpath+"Piano.mf.D4_2p4s.wav"
 Dsharp_path = music_fpath+"Piano.mf.Eb4_2p5s.wav"
-E_path = music_fpath+"Piano.mf.E4_2p4s.wav"
-F_path = music_fpath+"Piano.mf.F4_2p4s.wav"
+E4_path = music_fpath+"Piano.mf.E4_2p4s.wav"
+F4_path = music_fpath+"Piano.mf.F4_2p4s.wav"
 Fsharp_path = music_fpath+"Piano.mf.Gb4_2p5s.wav"
-G_path = music_fpath+"Piano.mf.G4_2p4s.wav"
+G4_path = music_fpath+"Piano.mf.G4_2p4s.wav"
 Gsharp_path = music_fpath+"Piano.mf.Ab4_2p5s.wav"
-A_path = music_fpath+"Piano.mf.A4_2p4s.wav"
+A4_path = music_fpath+"Piano.mf.A4_2p4s.wav"
 Asharp_path = music_fpath+"Piano.mf.Bb4_2p5s.wav"
-B_path = music_fpath+"Piano.mf.B4_2p4s.wav"
+B4_path = music_fpath+"Piano.mf.B4_2p4s.wav"
 
 # Define sounds
-sound_C = mixer.Sound(C_path)
+sound_C3 = mixer.Sound(C3_path)
+sound_D3 = mixer.Sound(D3_path)
+sound_E3 = mixer.Sound(E3_path)
+sound_F3 = mixer.Sound(F3_path)
+sound_G3 = mixer.Sound(G3_path)
+sound_A3 = mixer.Sound(A3_path)
+sound_B3 = mixer.Sound(B3_path)
+
+sound_C4 = mixer.Sound(C4_path)
 sound_Csharp = mixer.Sound(Csharp_path)
-sound_D = mixer.Sound(D_path)
+sound_D4 = mixer.Sound(D4_path)
 sound_Dsharp = mixer.Sound(Dsharp_path)
-sound_E = mixer.Sound(E_path)
-sound_F = mixer.Sound(F_path)
+sound_E4 = mixer.Sound(E4_path)
+sound_F4 = mixer.Sound(F4_path)
 sound_Fsharp = mixer.Sound(Fsharp_path)
-sound_G = mixer.Sound(G_path)
+sound_G4 = mixer.Sound(G4_path)
 sound_Gsharp = mixer.Sound(Gsharp_path)
-sound_A = mixer.Sound(A_path)
+sound_A = mixer.Sound(A4_path)
 sound_Asharp = mixer.Sound(Asharp_path)
-sound_B = mixer.Sound(B_path)
+sound_B4 = mixer.Sound(B4_path)
 
 sound_dict = {
-        'C4': sound_C,
+        'C3': sound_C3,
+        'D3': sound_D3,
+        'E3': sound_E3,
+        'F3': sound_F3,
+        'G3': sound_G3,
+        'A3': sound_A3,
+        'B3': sound_B3,
+        'C4': sound_C4,
         'C#4': sound_Csharp,
-        'D4': sound_D,
+        'D4': sound_D4,
         'D#4': sound_Dsharp,
-        'E4': sound_E,
-        'F4': sound_F,
+        'E4': sound_E4,
+        'F4': sound_F4,
         'F#4': sound_Fsharp,
-        'G4': sound_G,
+        'G4': sound_G4,
         'G#4': sound_Gsharp,
         'A4': sound_A,
         'A#4': sound_Asharp,
-        'B4': sound_B,
+        'B4': sound_B4,
 }
 
 sound_path_dict = {
-        'C4': C_path,
+        'C3': C3_path,
+        'D3': D3_path,
+        'E3': E3_path,
+        'F3': F3_path,
+        'G3': G3_path,
+        'A3': A3_path,
+        'C4': C4_path,
         'C#4': Csharp_path,
-        'D4': D_path,
+        'D4': D4_path,
         'D#4': Dsharp_path,
-        'E4': E_path,
-        'F4': F_path,
+        'E4': E4_path,
+        'F4': F4_path,
         'F#4': Fsharp_path,
-        'G4': G_path,
+        'G4': G4_path,
         'G#4': Gsharp_path,
-        'A4': A_path,
+        'A4': A4_path,
         'A#4': Asharp_path,
-        'B4': B_path,
+        'B4': B4_path,
 }
 
 note_indices = ('C4','C#4','D4','D#4','E4',\
         'F4','F#4','G4','G#4','A4','A#4','B4')
 
-sound_paths = [C_path, Csharp_path, D_path, Dsharp_path,\
-               E_path, F_path, Fsharp_path, G_path, Gsharp_path, \
-A_path, Asharp_path, B_path]
 
 #%%    
 freq_dict = {
@@ -93,6 +123,7 @@ freq_dict = {
         'D3': 146.83,
         'E3': 164.81,
         'F3': 174.61,
+        'F#3': 185.00,
         'G3': 196.00,
         'A3': 220.00,
         'B3': 246.94,
@@ -115,11 +146,18 @@ freq_dict = {
         'G5': 783.99
 }
 
-#%% Music dictionary
+#%%    
+scale = ('C3', 'C#3', 'D3', 'D#3', 'E3', \
+              'F3', 'F#3', 'G3', 'G#3', 'A3', \
+              'B3', 'C4', 'C#4', 'D4', 'D#4', \
+              'E4', 'F4', 'F#4', 'G4', 'G#4', \
+              'A4', 'A#4', 'B4')
 
-class music_dict:
+#%% Melody dictionary
+
+class melody_dict:
         
-    def __init__(self, note):        
+    def __init__(self, note=None, note_idx=None):        
         
         default_note = 'C4'
         
@@ -127,11 +165,18 @@ class music_dict:
             self.note = note # frequency in Hz
             self.freq = freq_dict[note]
             self.sound = sound_dict[note] 
-        else:                
+            self.wav_file = sound_path_dict[note]
+        elif note is None and note_idx in range(len(scale)):
+            self.note = scale[note_idx] # frequency in Hz
+            self.freq = freq_dict[self.note]
+            self.sound = sound_dict[self.note] 
+            self.wav_file = sound_path_dict[self.note]
+        else:             
             print('Unknown input {}, setting to {}'.format(note,default_note))
             self.note = default_note
             self.freq = freq_dict[note]
             self.sound = sound_dict[note]
+            self.wav_file = sound_path_dict[note]
 
 #%%
 class music_theme:
@@ -156,3 +201,16 @@ class music_theme:
             self.theme = default_theme
             self.chords = [0,4,5,3]
             self.bpm = 70
+            
+#%% Try to combine into class
+
+class note_class:
+    
+    fs = 44100  # Sampling frequency in Hz
+    
+    def __init__(self, note, instr='piano'):        
+        #self.f0 = f0 # frequency in Hz
+        self.note = note # Example C4
+        self.f0 = freq_dict[note]
+        self.instr = instr
+        self.sound = sound_dict[note]
